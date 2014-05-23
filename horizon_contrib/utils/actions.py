@@ -34,4 +34,8 @@ class BaseFilterAction(tables.FilterAction):
                     if q in str(obj.__dict__[name]):
                         return True
             return False
-        return filter(comp, table.get_paginator_data())
+        try:
+        	data = table.get_paginator_data() #all data for table
+        except AttributeError:
+        	pass
+        return filter(comp, data)
