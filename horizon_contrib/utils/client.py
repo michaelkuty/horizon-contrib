@@ -11,12 +11,12 @@ log = logging.getLogger('utils.make_request')
 class Req(object):
     """
     """
-    
+
     def __init__(self, *args, **kwargs):
         super(Req, self).__init__(*args, **kwargs)
 
     @staticmethod
-    def make_request(path, method="GET", params={}, request=None):
+    def make_request(path, method="GET", params={}, request=None, verify=True):
         """small util method for simplify create request with handled exceptions
         and debug output
 
@@ -42,11 +42,11 @@ class Req(object):
         log.debug("%s - %s - %s"%(method,path,params))
 
         if method == "GET":
-            response = requests.get(path)
+            response = requests.get(path, verify=verify)
 
         elif method in ["POST", "PUT", "DELETE"]:
             headers = {"Content-Type": "application/json" }
-            req = requests.Request(method, path, data=json.dumps(params),headers=headers).prepare()
+            req = requests.Request(method, path, data=json.dumps(params),headers=headers, verify=verify).prepare()
             response = requests.Session().send(req)
 
         try:
@@ -75,6 +75,14 @@ class BaseClient(object):
 
         Required.
 
+    .. attribute:: private_token
+
+        Optional.
+
+    .. attribute:: private_token_name
+
+        Optional. Default is private_token
+
     .. attribute:: api_prefix
 
         Default to be a string (``/api``)
@@ -83,13 +91,21 @@ class BaseClient(object):
 
         Optional.
 
+    .. attribute:: verify
+
+        Default True
+        Optional. http://docs.python-requests.org/en/latest/user/advanced/
+
     """
 
     host = None
     port = None
     protocol = "HTTP"
     api_prefix = "/api"
-
+    verify = True
+    private_token = None
+    private_token_name = "private_token"
+    
     req = Req()
 
     @property
@@ -132,6 +148,9 @@ class BaseClient(object):
         except Exception, e:
             pass
 
+        if self.private_token:
+            data[self.private_token_name] = self.private_token
+
         try:
             request = args[3]
         except Exception, e:
@@ -140,7 +159,7 @@ class BaseClient(object):
         if not url:
             url = kwargs.get("url", "")
         _url = "{0}{1}".format(self.api, url)
-        return self.req.make_request(path=_url,method=method, params=data, request=request)
+        return self.req.make_request(path=_url,method=method, params=data, request=request, verify=self.verify)
 
     def __init__(self, *args, **kwargs):
         super(BaseClient, self).__init__(*args, **kwargs)
