@@ -77,7 +77,7 @@ class BaseClient(object):
 
     .. attribute:: api_prefix
 
-        Default to be a string (``api``)
+        Default to be a string (``/api``)
 
     .. attribute:: protocol
 
@@ -87,7 +87,7 @@ class BaseClient(object):
 
     host = None
     port = None
-    protocol = "http"
+    protocol = "HTTP"
     api_prefix = "/api"
 
     req = Req()
@@ -100,7 +100,7 @@ class BaseClient(object):
                                             self.api_prefix)
 
     def request(self, *args, **kwargs):
-        """small util method for simplify create request with handled exceptions
+        """wrapper for request with handled exceptions
         and debug output
 
         .. attribute:: path
