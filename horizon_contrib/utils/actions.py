@@ -35,7 +35,7 @@ class BaseFilterAction(tables.FilterAction):
                         return True
             return False
         try:
-        	data = table.get_paginator_data() #all data for table
+            data = table.get_paginator_data() #all data for table
         except AttributeError:
-        	pass
+            pass
         return filter(comp, data)
