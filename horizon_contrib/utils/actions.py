@@ -1,0 +1,37 @@
+# -*- coding: UTF-8 -*-
+from django.conf import settings
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core import urlresolvers
+from django.template.defaultfilters import timesince
+from django.utils.http import urlencode
+from django.utils.translation import ugettext_lazy as _
+from django.template.defaultfilters import slugify
+from horizon import tables
+
+class BaseFilterAction(tables.FilterAction):
+    """filter action for search in all available columns
+
+    .. attribute:: custom_field
+
+        Custom field for search. Default is all fields.
+
+    """
+    needs_preloading = True
+    
+    custom_field = None #not implemented
+
+    def filter(self, table, data, filter_string):
+        q = filter_string.lower()
+
+        def comp(obj):
+            if isinstance(obj, dict):
+                for key, value in obj.iteritems():
+                    if q in obj.get(key, "").lower():
+                        return True
+            if isinstance(obj, object):
+                for prop in obj._meta.fields:
+                    name = prop.name
+                    if q in str(obj.__dict__[name]):
+                        return True
+            return False
+        return filter(comp, table.get_paginator_data())
