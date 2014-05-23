@@ -29,10 +29,14 @@ class BaseFilterAction(tables.FilterAction):
                     if q in obj.get(key, "").lower():
                         return True
             if isinstance(obj, object):
-                for prop in obj._meta.fields:
-                    name = prop.name
-                    if q in str(obj.__dict__[name]):
-                        return True
+                try:
+                    for prop in obj._meta.fields:
+                        name = prop.name
+                        if q in str(obj.__dict__[name]):
+                            return True
+                except Exception, e:
+                    #swallowed exception
+                    pass
             return False
         try:
             data = table.get_paginator_data() #all data for table
