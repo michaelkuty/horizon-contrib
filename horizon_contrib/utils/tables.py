@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 from django.conf import settings
+from django.utils.html import format_html
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core import urlresolvers
 from django.template.defaultfilters import timesince
@@ -174,7 +175,9 @@ class BaseAgregateMixin(object):
         if self.field:
             objects = getattr(datum, self.field)
             trs = []
-            for obj in objects.all():
+            if hasattr(objects, "all"):
+                objects = objects.all()
+            for obj in objects:
                 if self._thead is None and obj:
                     self._thead = self.thead(obj)
                 tds = []
