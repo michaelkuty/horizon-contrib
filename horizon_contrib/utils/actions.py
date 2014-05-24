@@ -26,7 +26,7 @@ class BaseFilterAction(tables.FilterAction):
         def comp(obj):
             if isinstance(obj, dict):
                 for key, value in obj.iteritems():
-                    if q in obj.get(key, "").lower():
+                    if q in str(obj.get(key, "")).lower():
                         return True
             if isinstance(obj, object):
                 try:
@@ -43,3 +43,6 @@ class BaseFilterAction(tables.FilterAction):
         except AttributeError:
             pass
         return filter(comp, data)
+
+class FilterAction(BaseFilterAction):
+    pass
