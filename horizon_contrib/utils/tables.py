@@ -134,6 +134,10 @@ class AgregateMixin(tables.base.Column):
         return format_html(', '.join(output))
 
 class BaseAgregateMixin(object):
+    """TODO impl table cell for field on same model
+    """
+
+class NestedAgregateMixin(object):
     """returns html table for django model with nested fields
     class Pohledavka(models.Model):
 
@@ -175,7 +179,7 @@ class BaseAgregateMixin(object):
         if self.field:
             objects = getattr(datum, self.field)
             trs = []
-            if hasattr(objects, "all"):
+            if hasattr(objects, "all"): #django model support
                 objects = objects.all()
             for obj in objects:
                 if self._thead is None and obj:
