@@ -113,6 +113,82 @@ class PaginatedTable(tables.DataTable):
         return "page=%s"% self.page
     """
 
+class AgregateMixin(tables.base.Column):
+    """return html array of links for all models"""
+    
+    detail_url = "horizon:common:osoba:detail"
+    
+    field = None #must be M2M field
+    
+    #object mus have __unidoce__ and pk !!
+
+    def get_raw_data(self, datum):
+        output = []
+        if self.field:
+            objects = getattr(datum, self.field)
+            for obj in objects.all():
+                url = reverse(self.detail_url, args=[obj.pk,])
+                link = u"<a href='%s'>%s</a>" % (url, obj)
+                output.append(link)
+        return format_html(', '.join(output))
+
+class BaseAgregateMixin(object):
+    """returns html table for django model with nested fields
+    class Pohledavka(models.Model):
+
+        test_field = models.ManyToManyField("Nested")
+
+    class Nested(models.Model):
+
+        test_field1 = Charfield etc..
+        test_field2 = ..
+
+    field = test_field
+    nested_fields = ("test_field1", "test_field2")
+    """
+    
+    field = None #must be M2M field
+    _thead = None #readonly
+    nested_fields = None
+
+    def thead(self, obj):
+        if len(self.nested_fields) > 0:
+            tds = []
+            for label in self.nested_fields:
+                if label:
+                    field_name = "field name"
+                    try:
+                        field_name = obj._meta.get_field_by_name(label)[0].name
+                        field_name = obj._meta.get_field_by_name(label)[0].verbose_name
+                    except Exception, e:
+                        raise e
+                    field_label = field_name.capitalize()
+                    td = u"<td>{0}</td>".format(field_label)
+                    tds.append(td)
+            tr = u"<tr>{0}</tr>".format("".join(tds))
+            thead = u"<thead>{0}</thead>".format("".join(tr))
+            return format_html(thead)
+        return None
+
+    def get_raw_data(self, datum):
+        if self.field:
+            objects = getattr(datum, self.field)
+            trs = []
+            for obj in objects.all():
+                if self._thead is None and obj:
+                    self._thead = self.thead(obj)
+                tds = []
+                for field in self.nested_fields:
+                    if field:
+                        value = getattr(obj, field)
+                        td = u"<td>{0}</td>".format(value)
+                        tds.append(td)
+                tr = u"<tr>{0}</tr>".format("".join(tds))
+                trs.append(tr)
+            table = u"<table>{0}{1}</table>".format(self._thead, "".join(trs))
+            return format_html(table)
+        return None
+
 """logentries"""
 class BaseTabTable(tabs.TableTab):
     """spolecny predek pro taby, zjednodusuje pristup k instanci
