@@ -5,8 +5,7 @@ import logging
 from horizon import messages
 from django.conf import settings
 
-log = logging.getLogger('utils.make_request')
-
+LOG = logging.getLogger(__name__)
 
 class Req(object):
     """
@@ -39,16 +38,20 @@ class Req(object):
             Useful in debug. 
 
         """
-        log.debug("%s - %s - %s"%(method,path,params))
 
         if method == "GET":
             response = requests.get(path, verify=verify)
 
         elif method in ["POST", "PUT", "DELETE"]:
             headers = {"Content-Type": "application/json" }
-            req = requests.Request(method, path, data=json.dumps(params),headers=headers, verify=verify).prepare()
-            response = requests.Session().send(req)
-
+            req = requests.Request(method, path, data=json.dumps(params),headers=headers).prepare()
+            response = requests.Session().send(req, verify=verify)
+            
+        if request:
+            messages.debug(request, "%s - %s - %s - %s - %s" % (method, path, params, response.status_code, str(response.text)))
+        else:
+            LOG.debug(request, "%s - %s - %s - %s - %s" % (method, path, params, response.status_code, str(response.text)))
+        
         try:
             response = response.json()
         except Exception, e:
@@ -141,7 +144,7 @@ class BaseClient(object):
         url = args[0]
         method = "GET"
         data = {}
-        request = None
+        request = getattr(kwargs, "request", None)
         try:
             method = args[1]
             data = args[2]
@@ -151,10 +154,12 @@ class BaseClient(object):
         if self.private_token:
             data[self.private_token_name] = self.private_token
 
+        """
         try:
             request = args[3]
         except Exception, e:
             pass
+        """
 
         if not url:
             url = kwargs.get("url", "")
