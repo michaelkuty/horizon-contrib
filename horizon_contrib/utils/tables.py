@@ -151,27 +151,44 @@ class NestedAgregateMixin(object):
     field = test_field
     nested_fields = ("test_field1", "test_field2")
     """
-    
+    thead = True
     field = None #must be M2M field
     _thead = None #readonly
     nested_fields = None
+    _colspan = 0
+    
+    @property
+    def colspan(self):
+        try:
+            self._colspan = len(list(self.nested_fields))
+        except Exception, e:
+            raise e
+        return self._colspan
+    
+    @property
+    def td_width(self):
+        return 100 / self.colspan
 
-    def thead(self, obj):
+    def get_thead(self, obj):
+        thead = u"<thead><th colspan=\"{0}\">{1}</th></thead>"
+        if not self.thead:
+            return format_html(thead.format(0, ""))
+
         if len(self.nested_fields) > 0:
             tds = []
             for label in self.nested_fields:
                 if label:
                     field_name = "field name"
                     try:
-                        field_name = obj._meta.get_field_by_name(label)[0].name
+                        field_name = obj._meta.get_field_by_name(label)[0].name #name je vzdycky
                         field_name = obj._meta.get_field_by_name(label)[0].verbose_name
                     except Exception, e:
                         raise e
                     field_label = field_name.capitalize()
                     td = u"<td>{0}</td>".format(field_label)
                     tds.append(td)
-            tr = u"<tr>{0}</tr>".format("".join(tds))
-            thead = u"<thead>{0}</thead>".format("".join(tr))
+            tr = u"<th>{0}</th>".format("".join(tds))
+            thead = thead.format("".join(tr), self.colspan)
             return format_html(thead)
         return None
 
@@ -179,20 +196,22 @@ class NestedAgregateMixin(object):
         if self.field:
             objects = getattr(datum, self.field)
             trs = []
+
             if hasattr(objects, "all"): #django model support
                 objects = objects.all()
+
             for obj in objects:
                 if self._thead is None and obj:
-                    self._thead = self.thead(obj)
+                    self._thead = self.get_thead(obj)
                 tds = []
                 for field in self.nested_fields:
                     if field:
                         value = getattr(obj, field)
-                        td = u"<td>{0}</td>".format(value)
+                        td = u"<td style=\"width:{0}%;\">{1}</td>".format(self.td_width, value)
                         tds.append(td)
                 tr = u"<tr>{0}</tr>".format("".join(tds))
                 trs.append(tr)
-            table = u"<table>{0}{1}</table>".format(self._thead, "".join(trs))
+            table = u"<table style=\"width:100%;\">{0}{1}</table>".format(self._thead, "".join(trs))
             return format_html(table)
         return None
 
