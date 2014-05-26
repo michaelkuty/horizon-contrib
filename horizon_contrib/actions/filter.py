@@ -46,3 +46,4 @@ class BaseFilterAction(tables.FilterAction):
 
 class FilterAction(BaseFilterAction):
     pass
+
