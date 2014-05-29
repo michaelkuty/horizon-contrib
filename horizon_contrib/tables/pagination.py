@@ -36,7 +36,7 @@ class PaginationTable(tables.DataTable):
     _paginator = None
 
     def __init__(self, *args, **kwargs):
-        super(PaginatedTable, self).__init__(*args, **kwargs)
+        super(PaginationTable, self).__init__(*args, **kwargs)
 
         has_get_data = hasattr(self, 'get_paginator_data') and callable(self.get_paginator_data)
 
