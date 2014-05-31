@@ -23,7 +23,7 @@ def line_list(array):
     return ",".join(array)
 
 @register.filter
-def form_group(instance):
+def form_group(instance, group_fields):
     """
     attribute:: instnace
     attribute:: fields :: ["string"]
@@ -34,7 +34,7 @@ def form_group(instance):
     
     if instance is None: return ""
    
-    for field in instance.sestava_fields:
+    for field in group_fields:
         field_name = instance._meta.get_field_by_name(field)[0].name #name je vzdycky
         field_name = instance._meta.get_field_by_name(field)[0].verbose_name
         field_label = field_name.capitalize()
@@ -42,24 +42,3 @@ def form_group(instance):
         inputs.append(u"{0}{1}".format(label.format(field_label), input.format(field_label, value)))
     
     return format_html(u"".join(inputs))
-
-
-@register.tag('to_list')
-def to_list(_parser, token):
-    try:
-        parts = token.split_contents()
-    except ValueError:
-        raise template.TemplateSyntaxError, \
-          "%r tag requires at least one argument" % token.contents.split()[0]
-
-    return AsListNode(parts[1:])
-
-class AsListNode(template.Node):
-    def __init__(self, parts):
-        self.parts = map(lambda p: template.Variable(p), parts)
-
-    def render(self, context):
-        resolved = []
-        for each in self.parts:
-            resolved.append(each.resolve(context))
-        return resolved
