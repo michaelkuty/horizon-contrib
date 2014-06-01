@@ -49,8 +49,8 @@ def div_group(instance, group_fields):
     attribute:: instnace
     attribute:: fields :: ["string"]
     """
-    label = u"<div class=\"vlastnost\" for=\"{0}\">{0}:</div>"
-    input = u"<div class=\"hodnota\" id=\"{0}\">&nbsp;{1}</div>"
+    label = u"<div class=\"list-label\" for=\"{0}\">{0}:</div>"
+    input = u"<div class=\"list-value\" id=\"{0}\">&nbsp;{1}</div>"
     inputs = []
     
     if instance is None: return ""
