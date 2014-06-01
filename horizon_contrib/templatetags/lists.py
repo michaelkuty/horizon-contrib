@@ -42,3 +42,24 @@ def form_group(instance, group_fields):
         inputs.append(u"{0}{1}".format(label.format(field_label), input.format(field_label, value)))
     
     return format_html(u"".join(inputs))
+
+@register.filter
+def div_group(instance, group_fields):
+    """
+    attribute:: instnace
+    attribute:: fields :: ["string"]
+    """
+    label = u"<div class=\"vlastnost\" for=\"{0}\">{0}:</div>"
+    input = u"<div class=\"hodnota\" id=\"{0}\">&nbsp;{1}</div>"
+    inputs = []
+    
+    if instance is None: return ""
+   
+    for field in group_fields:
+        field_name = instance._meta.get_field_by_name(field)[0].name #name je vzdycky
+        field_name = instance._meta.get_field_by_name(field)[0].verbose_name
+        field_label = field_name.capitalize()
+        value = getattr(instance, field)
+        inputs.append(u"{0}{1}".format(label.format(field_label), input.format(field_label, value)))
+    
+    return format_html(u"".join(inputs))
