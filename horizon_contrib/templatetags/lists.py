@@ -13,6 +13,8 @@ def list(array):
     ul = u"<ul class=\"list-group\">{0}</ul>"
     li = u"<li class=\"list-group-item\">{0}</li>"
     lis = []
+    if len(array) == 0:
+        return "-"
     for value in array:
         lis.append(li.format(value))
     ul = ul.format("".join(lis))
