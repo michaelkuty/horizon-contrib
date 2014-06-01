@@ -6,6 +6,12 @@ from django.template.loader import render_to_string
 from django.utils.html import format_html
 register = template.Library()
 
+def is_empty(array):
+    if len(array) == 0:
+        return True
+    else:
+        return False
+
 @register.filter
 def list(array):
     """
@@ -13,7 +19,7 @@ def list(array):
     ul = u"<ul class=\"list-group\">{0}</ul>"
     li = u"<li class=\"list-group-item\">{0}</li>"
     lis = []
-    if len(array) == 0:
+    if is_empty(array):
         return "-"
     for value in array:
         lis.append(li.format(value))
@@ -22,6 +28,8 @@ def list(array):
 
 @register.filter
 def line_list(array):
+    if is_empty(array):
+        return "-"
     try:
         _array = []
         for item in array:
@@ -47,7 +55,9 @@ def form_group(instance, group_fields):
         field_name = instance._meta.get_field_by_name(field)[0].name #name je vzdycky
         field_name = instance._meta.get_field_by_name(field)[0].verbose_name
         field_label = field_name.capitalize()
-        value = getattr(instance, field)
+        value = getattr(instance, field, "-")
+        if not value or len(str(value)) == 0:
+            value = "-"
         inputs.append(u"{0}{1}".format(label.format(field_label), input.format(field_label, value)))
     
     return format_html(u"".join(inputs))
@@ -68,7 +78,9 @@ def div_group(instance, group_fields):
         field_name = instance._meta.get_field_by_name(field)[0].name #name je vzdycky
         field_name = instance._meta.get_field_by_name(field)[0].verbose_name
         field_label = field_name.capitalize()
-        value = getattr(instance, field)
+        value = getattr(instance, field, "-")
+        if not value or len(str(value)) == 0:
+            value = "-"
         inputs.append(u"{0}{1}".format(label.format(field_label), input.format(field_label, value)))
     
     return format_html(u"".join(inputs))
