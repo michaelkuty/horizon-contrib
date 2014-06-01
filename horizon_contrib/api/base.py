@@ -118,7 +118,7 @@ class BaseClient(object):
                                             self.port,
                                             self.api_prefix)
 
-    def request(self, *args, **kwargs):
+    def request(self, path, method="GET", data={}, request=None, *args, **kwargs):
         """wrapper for request with handled exceptions
         and debug output
 
@@ -141,29 +141,15 @@ class BaseClient(object):
             Useful in debug. 
 
         """
-        url = args[0]
-        method = "GET"
-        data = {}
         request = getattr(kwargs, "request", None)
-        try:
-            method = args[1]
-            data = args[2]
-        except Exception, e:
-            pass
 
         if self.private_token:
             data[self.private_token_name] = self.private_token
 
-        """
-        try:
-            request = args[3]
-        except Exception, e:
-            pass
-        """
+        if not path:
+            path = kwargs.get("path", "")
+        _url = "{0}{1}".format(self.api, path)
 
-        if not url:
-            url = kwargs.get("url", "")
-        _url = "{0}{1}".format(self.api, url)
         return self.req.make_request(path=_url,method=method, params=data, request=request, verify=self.verify)
 
     def __init__(self, *args, **kwargs):
