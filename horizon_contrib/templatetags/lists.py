@@ -20,7 +20,7 @@ def list(array):
 
 @register.filter
 def line_list(array):
-    return ",".join(array)
+    return ", ".join(array)
 
 @register.filter
 def form_group(instance, group_fields):
