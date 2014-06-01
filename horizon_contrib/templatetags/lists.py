@@ -20,6 +20,13 @@ def list(array):
 
 @register.filter
 def line_list(array):
+    try:
+        _array = []
+        for item in array:
+            _array.append(item.__unicode__())
+        array = _array
+    except Exception, e:
+        pass
     return ", ".join(array)
 
 @register.filter

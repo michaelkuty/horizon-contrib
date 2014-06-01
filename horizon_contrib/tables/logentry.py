@@ -43,4 +43,4 @@ class LogEntryTable(tables.DataTable):
                                                 filters=(get_flag_name,))
 
     class Meta:
-        name = "logentries"
+        name = _("Historie")
