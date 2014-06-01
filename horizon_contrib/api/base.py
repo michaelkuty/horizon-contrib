@@ -15,7 +15,7 @@ class Req(object):
         super(Req, self).__init__(*args, **kwargs)
 
     @staticmethod
-    def make_request(path, method="GET", params={}, request=None, verify=True):
+    def make_request(path, method="GET", params={}, request=None, verify=True, token=None):
         """small util method for simplify create request with handled exceptions
         and debug output
 
@@ -44,6 +44,10 @@ class Req(object):
 
         elif method in ["POST", "PUT", "DELETE"]:
             headers = {"Content-Type": "application/json" }
+            if token:
+                headers = {"Content-Type": "application/json",
+                            "PRIVATE-TOKEN": token }
+                
             req = requests.Request(method, path, data=json.dumps(params),headers=headers).prepare()
             response = requests.Session().send(req, verify=verify)
             
@@ -112,10 +116,16 @@ class BaseClient(object):
     req = Req()
 
     @property
+    def _port(self):
+        if self.port:
+            return ":%s"% self.port
+        return ""
+
+    @property
     def api(self):
-        return  '{0}://{1}:{2}{3}'.format(self.protocol.lower(),
-                                            self.host, 
-                                            self.port,
+        return  '{0}://{1}{2}{3}'.format(self.protocol.lower(),
+                                            self.host,
+                                            self._port,
                                             self.api_prefix)
 
     def request(self, path, method="GET", data={}, request=None, *args, **kwargs):
@@ -150,7 +160,7 @@ class BaseClient(object):
             path = kwargs.get("path", "")
         _url = "{0}{1}".format(self.api, path)
 
-        return self.req.make_request(path=_url,method=method, params=data, request=request, verify=self.verify)
+        return self.req.make_request(path=_url,method=method, params=data, request=request, verify=self.verify, token=self.private_token)
 
     def __init__(self, *args, **kwargs):
         super(BaseClient, self).__init__(*args, **kwargs)
