@@ -45,10 +45,7 @@ class PaginationTable(tables.DataTable):
             raise NotImplementedError('You must define either a "get_paginator_data" '
                                       'method on %s.' % cls_name)
 
-        try:
-            self.PAGINATION_COUNT = settings.PAGINATION_COUNT
-        except Exception, e:
-            pass
+        self.PAGINATION_COUNT =  getattr(settings, "PAGINATION_COUNT", self.PAGINATION_COUNT) 
 
     def get_paginator_data(self):
         """must be overwritten
@@ -60,7 +57,7 @@ class PaginationTable(tables.DataTable):
         """returns int page"""
         return int(self.page)
 
-    def get_page_data(self, page=None):
+    def get_page_data(self, page="1"):
         """returns data for specific page
         default returns for first page
         """
