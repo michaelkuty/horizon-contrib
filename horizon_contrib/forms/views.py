@@ -89,6 +89,7 @@ class ModelModalView(ModalFormMixin, generic.FormView):
             elif isinstance(handled, http.HttpResponse):
                 return handled
             else:
+                #TODO reverse url
                 success_url = self.get_success_url()
                 response = http.HttpResponseRedirect(success_url)
                 # TODO(gabriel): This is not a long-term solution to how
