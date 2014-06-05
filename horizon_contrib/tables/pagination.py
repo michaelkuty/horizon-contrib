@@ -22,12 +22,16 @@ class PaginationTable(tables.DataTable):
 
     .. attribute:: pagination
 
+    Django model class.
+
+    .. attribute:: model_class
+
         Turn off render `Show all` into template.
 
     .. attribute:: show_all_url
 
     """
-
+    model_class = None
     page = "1"
     pagination = True
     show_all_url = True
@@ -51,8 +55,42 @@ class PaginationTable(tables.DataTable):
         """must be overwritten
         returns queryset or list dataset for paginator
         """
-        pass
-    
+        object_list = []
+        if self.model_class is None and not callable(self.get_paginator_data):
+            raise Exception("you must specify ``model_class`` or override get_paginator_data")
+        try:
+            object_list = self.model_class.objects.all()
+        except Exception, e:
+            raise e
+        return object_list
+
+    @property
+    def filtered_data(self):
+        # This function should be using django.utils.functional.cached_property
+        # decorator, but unfortunately due to bug in Django
+        # https://code.djangoproject.com/ticket/19872 it would make it fail
+        # when being mocked by mox in tests.
+        if not hasattr(self, '_filtered_data'):
+            self._filtered_data = self.data
+            if self._meta.filter and self._meta._filter_action:
+                action = self._meta._filter_action
+                filter_string = self.get_filter_string()
+                request_method = self.request.method
+                needs_preloading = (not filter_string
+                                    and request_method == 'GET'
+                                    and action.needs_preloading)
+                valid_method = (request_method == action.method)
+                if valid_method or needs_preloading:
+                    if self._meta.mixed_data_type:
+                        self._filtered_data = action.data_type_filter(self,
+                                                                self.get_paginator_data(),
+                                                                filter_string)
+                    else:
+                        self._filtered_data = action.filter(self,
+                                                            self.get_paginator_data(),
+                                                            filter_string)
+        return self._filtered_data
+
     def get_page(self):
         """returns int page"""
         return int(self.page)
@@ -70,7 +108,7 @@ class PaginationTable(tables.DataTable):
         try:
             if not self.page == "all":
                 objects = self.paginator.page(self.page)
-            elif self.show_all_url:                 
+            elif self.show_all_url:
                 objects = self.get_paginator_data()
         except EmptyPage:
             objects = self.paginator.page(self.paginator.num_pages)
