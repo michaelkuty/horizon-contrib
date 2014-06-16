@@ -1,3 +1,4 @@
+from common.util.urlresolvers import reverse
 from django.contrib.admin.templatetags.admin_list import result_list
 from django import template
 from pohledavky.models import Osoba
@@ -11,6 +12,23 @@ def is_empty(array):
         return True
     else:
         return False
+
+@register.filter
+def issue_list(array):
+    """
+    """
+    url = "horizon:common:ukol:detail"
+    ul = u"<ul class=\"list-group\">{0}</ul>"
+    li = u"<li class=\"list-group-item\">{0}</li>"
+    _link = u"<a class=\"ajax-modal\" href=\"{0}\">{1}</a>"
+    lis = []
+    if is_empty(array):
+        return "-"
+    for value in array:
+        link = _link.format(reverse(url, args=(value.id,)), value) 
+        lis.append(li.format(link))
+    ul = ul.format("".join(lis))
+    return format_html(ul)
 
 @register.filter
 def list(array):
