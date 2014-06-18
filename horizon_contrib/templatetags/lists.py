@@ -24,8 +24,8 @@ def issue_list(array):
     lis = []
     if is_empty(array):
         return "-"
-    for value in array:
-        link = _link.format(reverse(url, args=(value.id,)), value) 
+    for model_issue in array:
+        link = _link.format(reverse(url, args=(model_issue.issue.id,)), model_issue) 
         lis.append(li.format(link))
     ul = ul.format("".join(lis))
     return format_html(ul)
