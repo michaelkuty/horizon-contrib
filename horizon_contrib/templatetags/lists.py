@@ -2,7 +2,6 @@ from common.util.urlresolvers import reverse
 from django.contrib.admin.templatetags.admin_list import result_list
 from django import template
 from pohledavky.models import Osoba
-from pohledavky.utils.tasks import get_osoba_action, get_user_issues
 from django.template.loader import render_to_string
 from django.utils.html import format_html
 register = template.Library()
