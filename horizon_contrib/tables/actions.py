@@ -16,7 +16,7 @@ class BaseFilterAction(tables.FilterAction):
         Custom field for search. Default is all fields.
 
     """
-    needs_preloading = False
+    needs_preloading = True
     
     custom_field = None #not implemented
 
@@ -38,7 +38,8 @@ class BaseFilterAction(tables.FilterAction):
                     #swallowed exception
                     pass
             return False
-        return filter(comp, table.get_paginator_data())
+
+        return filter(comp, data)
 
 class FilterAction(BaseFilterAction):
     pass

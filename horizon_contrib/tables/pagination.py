@@ -59,41 +59,20 @@ class PaginationTable(tables.DataTable):
         if self.model_class is None and not callable(self.get_paginator_data):
             raise Exception("you must specify ``model_class`` or override get_paginator_data")
         try:
-            object_list = self.model_class.objects.all()
+            object_list = self.model_class.objects.all().order_by("-id")
         except Exception, e:
             raise e
         return object_list
 
     @property
-    def filtered_data(self):
-        # This function should be using django.utils.functional.cached_property
-        # decorator, but unfortunately due to bug in Django
-        # https://code.djangoproject.com/ticket/19872 it would make it fail
-        # when being mocked by mox in tests.
-        if not hasattr(self, '_filtered_data'):
-            self._filtered_data = self.data
-            if self._meta.filter and self._meta._filter_action:
-                action = self._meta._filter_action
-                filter_string = self.get_filter_string()
-                request_method = self.request.method
-                needs_preloading = (not filter_string
-                                    and request_method == 'GET'
-                                    and action.needs_preloading)
-                valid_method = (request_method == action.method)
-                if valid_method or needs_preloading:
-                    if self._meta.mixed_data_type:
-                        self._filtered_data = action.data_type_filter(self,
-                                                                self.get_paginator_data(),
-                                                                filter_string)
-                    else:
-                        self._filtered_data = action.filter(self,
-                                                            self.get_paginator_data(),
-                                                            filter_string)
-        return self._filtered_data
-
     def get_page(self):
         """returns int page"""
-        return int(self.page)
+        page = None
+        try:
+            page = int(self.page) #fail only if set all
+        except Exception, e:
+            pass
+        return page
 
     def get_page_data(self, page="1"):
         """returns data for specific page
@@ -126,20 +105,28 @@ class PaginationTable(tables.DataTable):
         return self._paginator
 
     def previous_page_number(self):
-        return int(self.page) - 1
+        if not self.get_page is None:
+            return self.get_page - 1
+        return None
 
     def next_page_number(self):
-        return int(self.page) + 1
+        if not self.get_page is None:
+            return self.get_page + 1
+        return None
 
     def has_previous(self):
-        if int(self.page) == 1:
-            return False
-        return True
+        if not self.get_page is None:
+            if self.get_page == 1:
+                return False
+            return True
+        return False
 
     def has_next(self):
-        if (int(self.page) + 1) > self.paginator.num_pages:
-            return False
-        return True
+        if not self.get_page is None:
+            if (self.get_page + 1) > self.paginator.num_pages:
+                return False
+            return True
+        return False
 
     def has_more_data(self):
         """defaultne vypnuty staci zapnout a doimplementovat potrebne veci viz doc dorizonu"""
