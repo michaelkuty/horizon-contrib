@@ -30,10 +30,15 @@ class PaginationTable(tables.DataTable):
 
     .. attribute:: show_all_url
 
+    .. attribute:: position
+
+        Position of pagionation Top, Bottom, Both
+
     """
     model_class = None
     page = "1"
     pagination = True
+    position = "bottom"
     show_all_url = True
     
     PAGINATION_COUNT = "25"
