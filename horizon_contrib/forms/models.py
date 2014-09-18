@@ -118,5 +118,6 @@ class SelfHandlingModelForm(SelfHandlingMixin, django_forms.ModelForm):
         if CRISPY:
             self.helper = FormHelper(self)
             self.helper.field_class = ""
+            self.helper.form_tag = False
             self.helper.label_class = "control-label"
             self.helper.all().wrap(Div, css_class="col-lg-6 field-wrapper")
