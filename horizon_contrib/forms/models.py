@@ -5,13 +5,6 @@ from django import forms as django_forms
 from django.conf import settings
 from django.db import models
 
-try:
-    from crispy_forms.helper import FormHelper
-    from crispy_forms.layout import Div
-    CRISPY = True
-except Exception, e:
-    CRISPY = False
-
 """
 these method is used in ``SelfHandlingModalForm`` for easily save model
 because django <1.7 not supported update_or_create
