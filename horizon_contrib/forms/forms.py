@@ -6,6 +6,7 @@ from django import forms as django_forms
 from django.conf import settings
 from horizon import forms
 from django.forms.extras.widgets import SelectDateWidget
+from horizon_contrib.forms.models import create_or_update_and_get
 
 try:
     from crispy_forms.helper import FormHelper
@@ -62,15 +63,18 @@ class SelfHandlingMixin(object):
             self.helper.field_class = ""
             self.helper.form_tag = False
             self.helper.label_class = "control-label"
-            
+
             # classes added only if not hidden
             for item in self.helper.layout.fields:
-            	if item in ["object_id", "id"]:
-            		continue
-            	self.helper[item].wrap(Div, css_class="col-lg-6 field-wrapper")
+                if item in ["object_id", "id"]:
+                    continue
+                self.helper[item].wrap(Div, css_class="col-lg-6 field-wrapper")
 
 
 class SelfHandlingForm(SelfHandlingMixin, django_forms.Form):
+
+    """modal form with default crispy layout
+    """
 
     pass
 
