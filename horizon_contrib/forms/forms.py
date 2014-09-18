@@ -59,10 +59,11 @@ class SelfHandlingMixin(object):
         # crispy layout
         if CRISPY:
             self.helper = FormHelper(self)
-            self.helper.field_class = "col-lg-6"
+            self.helper.field_class = ""
             self.helper.form_tag = False
             self.helper.label_class = "control-label"
             
+            # classes added only if not hidden
             for item in self.helper.layout.fields:
             	if item in ["object_id", "id"]:
             		continue
