@@ -5,6 +5,13 @@ from django import forms as django_forms
 from django.conf import settings
 from django.db import models
 
+try:
+    from crispy_forms.helper import FormHelper
+    from crispy_forms.layout import Div
+    CRISPY = True
+except Exception, e:
+    CRISPY = False
+
 """
 these method is used in ``SelfHandlingModalForm`` for easily save model
 because django <1.7 not supported update_or_create
@@ -103,3 +110,13 @@ class SelfHandlingModelForm(SelfHandlingMixin, django_forms.ModelForm):
                 messages.error(request, data)
             return False
         return True
+
+    def __init__(self, *args, **kwargs):
+        super(SelfHandlingModelForm, self).__init__(*args, **kwargs)
+        
+        # crispy layout
+        if CRISPY:
+            self.helper = FormHelper(self)
+            self.helper.field_class = ""
+            self.helper.label_class = "control-label"
+            self.helper.all().wrap(Div, css_class="col-lg-6 field-wrapper")
