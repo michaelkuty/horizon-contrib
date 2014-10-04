@@ -107,6 +107,3 @@ class SelfHandlingModelForm(SelfHandlingMixin, django_forms.ModelForm):
                 messages.error(request, data)
             return False
         return True
-
-    def __init__(self, *args, **kwargs):
-        super(SelfHandlingModelForm, self).__init__(*args, **kwargs)

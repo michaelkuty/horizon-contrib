@@ -1,3 +1,14 @@
+# -*- coding: UTF-8 -*-
+import datetime
+
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div, Fieldset, HTML
+from crispy_forms.bootstrap import Tab, Container, ContainerHolder, TabHolder
+from crispy_forms.utils import render_field, flatatt, TEMPLATE_PACK
+from django.template.defaultfilters import slugify
+from django.template.loader import render_to_string
+
+
 class ModelFormTab(Tab):
 
     """
