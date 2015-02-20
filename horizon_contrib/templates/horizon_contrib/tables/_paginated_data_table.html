@@ -1,4 +1,4 @@
-  {% load i18n %}
+{% load i18n %}
 {% with table.needs_form_wrapper as needs_form_wrapper %}
 <div class="table_wrapper">
   {% if needs_form_wrapper %}<form action="{{ table.get_full_url }}" method="POST">{% csrf_token %}{% endif %}
@@ -11,6 +11,11 @@
         <th class='table_header' colspan='{{ columns|length }}'>
           <h3 class='table_title'>{{ table }}</h3>
           {{ table.render_table_actions }}
+          {% if table.pagination and table.position == "both" or table.position == "top" %}
+            <div class="pull-right">
+              {% include "pagination.html" %}
+            </div>
+          {% endif %}
         </th>
       </tr>
   {% endblock table_caption %}
@@ -47,7 +52,8 @@
   {% block table_footer %}
     {% if table.footer %}
     <tfoot>
-      {% if table.pagination %}
+  <tfoot>
+      {% if table.pagination and table.position == "both" or table.position == "bottom" %}
         <tr>
           <td colspan="{{ table.get_columns|length }}">
             <span style="float:right!important;margin-top:9px;" class="table_count">{% blocktrans count counter=rows|length %}Displaying {{ counter }} item{% plural %}Displaying {{ counter }} items{% endblocktrans %}</span>
@@ -88,6 +94,7 @@
         </tr>
       {% endif %}
 
+    </tfoot>
     </tfoot>
     {% endif %}
   {% endblock table_footer %}

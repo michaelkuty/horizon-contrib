@@ -10,6 +10,8 @@ from django.template.defaultfilters import slugify
 from horizon import tables
 from horizon import tabs
 
+# OBSOLETE
+
 class AggregationMixin(tables.base.Column):
     """return html array of links for all models"""
     

@@ -10,11 +10,8 @@ from horizon import tables
 from horizon import tabs
 
 class BaseTabTable(tabs.TableTab):
-    """spolecny predek pro taby, zjednodusuje pristup k instanci
+    """base tab table which provide instance as tab.object property
     """
     @property
     def object(self):
         return self.tab_group.kwargs['instance']
-
-    def get_logentries(self, instance):
-        return list(LogEntry.objects.filter(content_type_id=ContentType.objects.get_for_model(instance).pk,object_id=instance.pk).order_by("action_time").all())

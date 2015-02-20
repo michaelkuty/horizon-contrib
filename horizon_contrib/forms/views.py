@@ -5,8 +5,9 @@ from django.views import generic
 
 from horizon import exceptions
 
-
 ADD_TO_FIELD_HEADER = "HTTP_X_HORIZON_ADD_TO_FIELD"
+
+# TODO inherit from SelfhandlingForm
 
 
 class ModalFormMixin(object):
