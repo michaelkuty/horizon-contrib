@@ -8,7 +8,7 @@ What does solves ?
 * ModelTable, PaginatedTable
 * IndexView, PaginatedIndexView
 * ModelModalForm(based on SelfhandlingForm)
-
+* ModelFormTab, TableTab, ..
 
 Show me
 =======
@@ -109,6 +109,54 @@ SelfHandlingModelForm
 	    success_url = "horizon:redmine:..."
 
 	    template_name = 'redmine/issue/create.html'
+
+Modal Tabs
+----------
+
+.. code-block:: python
+
+	from horizon_contrib.tabs import ModelFormTab, TableTab
+
+	from .tables import NoteFormSetTable, DocumentTable
+
+	class IssueUpdateForm(SelfHandlingModelForm):
+
+	    class Meta:
+	        model = Issue
+
+	    def __init__(self, *args, **kwargs):
+
+	        request = kwargs.pop("request", None)
+	        issue = kwargs.pop("issue", None)
+
+	        super(IssueUpdateForm, self).__init__(*args, **kwargs)
+
+	        # CRISPY layout
+	        self.helper.layout = TabHolder(
+	            Tab(
+	                u"Issue",
+	                Div(
+	                    'project', 'priority', 'status',
+	                                'tracker', 'assigned_to', 'subject',
+	                    css_class="col-lg-6 field-wrapper"
+	                ),
+	                Div(
+	                    'start_date', 'due_date', 'description',
+	                    css_class="col-lg-6 field-wrapper"
+	                )
+	            ),
+	        )
+            TableTab(
+                u"Notes",
+                table=NoteFormSetTable(request, data=journal_set.filter(notes__regex = r'.{1}.*')), # only with notes 
+            ),
+            
+            documents = [..]
+
+	        self.helper.layout.extend([TableTab(
+	                u"Files",
+	                table=DocumentTable(request, data=documents),
+	            )])
 
 Read more
 ---------

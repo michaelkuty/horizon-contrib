@@ -35,6 +35,8 @@ class ModelTable(tables.DataTable, ModelTableMixin):
 
     note: best way is ModelClass because find by content_type makes additional db queries
     
+    .. attribute:: order_by is default to ("-id")
+    
     """
 
     order_by = ("-id")

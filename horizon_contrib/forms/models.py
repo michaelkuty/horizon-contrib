@@ -7,7 +7,7 @@ from django.db import models
 
 """
 these method is used in ``SelfHandlingModalForm`` for easily save model
-because django <1.7 not supported update_or_create
+because django < 1.7 not supported update_or_create
 https://docs.djangoproject.com/en/1.7/ref/models/querysets/#django.db.models.query.QuerySet.update_or_create
 """
 
@@ -48,69 +48,3 @@ def create_or_update_and_get(model_class, data):
                 rel_instance = create_or_update_and_get(field.rel.to, obj)
                 getattr(instance, field.name).add(rel_instance)
     return instance
-
-class SelfHandlingMixin(object):
-    def __init__(self, request, *args, **kwargs):
-        self.request = request
-        if not hasattr(self, "handle"):
-            raise NotImplementedError("%s does not define a handle method."
-                                      % self.__class__.__name__)
-        super(SelfHandlingMixin, self).__init__(*args, **kwargs)
-
-
-class SelfHandlingModelForm(SelfHandlingMixin, django_forms.ModelForm):
-    """A base :class:`Form <django:django.forms.Form>` class which includes
-    processing logic in its subclasses.
-
-    with automatic save model
-    """
-    required_css_class = 'required'  
-
-    def api_error(self, message):
-        """Adds an error to the form's error dictionary after validation
-        based on problems reported via the API. This is useful when you
-        wish for API errors to appear as errors on the form rather than
-        using the messages framework.
-        """
-        self._errors[NON_FIELD_ERRORS] = self.error_class([message])
-
-    def set_warning(self, message):
-        """Sets a warning on the form.
-
-        Unlike NON_FIELD_ERRORS, this doesn't fail form validation.
-        """
-        self.warnings = self.error_class([message])
-
-    def handle(self, request, data):
-        model = None
-        try:
-            model = self.Meta.model
-        except Exception, e:
-            raise e
-        if not model:
-            raise Exception("Missing model")
-        try:
-            saved_model = create_or_update_and_get(model, data)
-            try:
-                messages.success(request, u"Model %s byl uložen." % saved_model)
-            except Exception, e:
-                raise e
-                #swallowed Exception
-                #model has not __unicode__ method
-        except Exception, e:
-            if getattr(settings, "DEBUG", False):
-                messages.error(request, e.message)
-                messages.error(request, data)
-            return False
-        return True
-
-    def __init__(self, *args, **kwargs):
-        super(SelfHandlingModelForm, self).__init__(*args, **kwargs)
-        
-        # crispy layout
-        if CRISPY:
-            self.helper = FormHelper(self)
-            self.helper.field_class = ""
-            self.helper.form_tag = False
-            self.helper.label_class = "control-label"
-            self.helper.all().wrap(Div, css_class="col-lg-6 field-wrapper")
