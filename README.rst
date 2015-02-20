@@ -5,7 +5,7 @@ horizon django contrib
 
 What does solves ?
 
-* ModelTable, PaginatedDataTable
+* ModelTable, PaginatedTable
 * IndexView, PaginatedIndexView
 * ModelModalForm(based on SelfhandlingForm)
 
