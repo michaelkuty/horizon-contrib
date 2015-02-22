@@ -13,7 +13,7 @@
           {{ table.render_table_actions }}
           {% if table.pagination and table.position == "both" or table.position == "top" %}
             <div class="pull-right">
-              {% include "pagination.html" %}
+              {% include "horizon_contrib/tables/pagination.html" %}
             </div>
           {% endif %}
         </th>
@@ -57,7 +57,7 @@
         <tr>
           <td colspan="{{ table.get_columns|length }}">
             <span style="float:right!important;margin-top:9px;" class="table_count">{% blocktrans count counter=rows|length %}Displaying {{ counter }} item{% plural %}Displaying {{ counter }} items{% endblocktrans %}</span>
-            {% include "pagination.html" %}
+            {% include "horizon_contrib/tables/pagination.html" %}
           </td>
         </tr>
         {% if table.needs_summary_row %}

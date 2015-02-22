@@ -5,8 +5,8 @@ horizon django contrib
 
 What does solves ?
 
-* ModelTable, PaginatedTable
-* IndexView, PaginatedIndexView
+* ModelTable, PaginatedTable, PaginatedModelTable (based on DataTable)
+* IndexView, PaginatedView (based on DataTableView)
 * ModelModalForm(based on SelfhandlingForm)
 * ModelFormTab, TableTab, ..
 
@@ -27,10 +27,13 @@ ModelTable
 
 	class MyModelTable(ModelTable):
 
-	    model_class = MyModelClass
-	    
-	    # or as string, but this makes some additional db queries
-	    model_class = "mymodelclass"
+
+	    class Meta:
+
+		    model_class = MyModelClass
+		    
+		    # or as string, but this makes some additional db queries
+		    model_class = "mymodelclass"
 
 
 and then `views.py`
@@ -45,6 +48,40 @@ and then `views.py`
 	    table_class = MyModelTable
 	    template_name = 'myapp/mymodel/index.html' # or leave blank
 
+note: for easy table inheritence we supports model_class directly on the table class
+
+.. code-block:: python
+
+	...
+	
+	class MyModelTable(ModelTable):
+
+	    model_class = MyModelClass
+	
+	...
+
+
+Specifing columns and ordering
+------------------------------
+
+	class MyModelTable(ModelTable):
+
+
+	    class Meta:
+	    	columns = ("project", "issue", ..)
+	    	order_by = ("id") # queryset.order_by(self._meta.order_by)
+
+note: order by is used for generic queryset for more customization please override get_table_data
+
+
+Custom queryset
+---------------
+
+	class MyModelTable(ModelTable):
+
+	    def get_table_data(self):
+	        return self._model_class.objects.all().order_by("status__id")
+
 
 PaginatedTable
 --------------
@@ -57,8 +94,10 @@ PaginatedTable
 
 	class MyModelTable(PaginatedTable):
 
-	    model_class = "mymodelclass"
 
+	    class Meta:
+	    
+		    model_class = MyModelClass
 
 and then `views.py`
 
@@ -68,8 +107,34 @@ and then `views.py`
 
 	from .tables import MyModelTable
 
-	class IndexView(BaseIndexView):
+	class IndexView(IndexView):
 	    table_class = MyModelTable
+
+
+PaginatedModelTable
+-------------------
+
+this table combine ModelTable and Pagination
+
+.. code-block:: python
+
+	from horizon_contrib.tables import PaginatedModelTable
+
+	class MyModelTable(PaginatedModelTable):
+
+	    model_class = "mymodelclass"
+
+
+and then `views.py`
+
+.. code-block:: python
+
+	from horizon_contrib.tables.views import PaginatedView
+
+	from .tables import PaginatedModelTable
+
+	class IndexView(IndexView):
+	    table_class = PaginatedModelTable
 
 
 SelfHandlingModelForm

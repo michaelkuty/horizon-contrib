@@ -30,7 +30,7 @@ class IndexView(tables.DataTableView):
             return None
 
 
-class PaginatedView(IndexView):
+class PaginatedView(tables.DataTableView):
     """basic pagiated view
     """
 
