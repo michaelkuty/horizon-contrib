@@ -45,7 +45,7 @@ class ModelTableMixin(object):
         if self._model_class is None and not callable(self.get_table_data):
             raise Exception(
                 "you must specify ``model_class`` or override get_table_data")
-        object_list = self._model_class.objects.all().order_by(self._meta.order_by)
+        object_list = self._model_class.objects.all().order_by(getattr(self, "order_by", "-id"))
         return object_list
 
 
@@ -71,7 +71,7 @@ class ModelTable(tables.DataTable, ModelTableMixin):
 
     """
 
-    order_by = ("-id")
+    order_by = "-id"
 
     def __init__(self, request, data=None, needs_form_wrapper=None, **kwargs):
 
@@ -135,7 +135,6 @@ class PaginationMixin(ModelTableMixin):
         Position of pagionation Top, Bottom, Both
 
     """
-    order_by = ("-id")
 
     page = "1"
     pagination = True
