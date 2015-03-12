@@ -24,9 +24,9 @@ class LogEntryTable(tables.DataTable):
         return model.pk
 
     content_type = tables.Column('content_type', verbose_name=_(u"Model"))
-    datetime = tables.Column('action_time', verbose_name=_(u"Datum a čas"))
-    user = tables.Column('user', verbose_name=_(u"Uživatel"))
-    osoba = tables.Column('user', verbose_name=_(u"Osoba"), filters=(lambda user: user.first_name + " " + user.last_name,))
-    change_message = tables.Column('change_message', verbose_name=_(u"Zpráva o změně"))
-    action_flag = tables.Column('action_flag', verbose_name=_("Typ akce"), 
+    datetime = tables.Column('action_time', verbose_name=_(u"Date and Time"))
+    user = tables.Column('user', verbose_name=_(u"User"))
+    osoba = tables.Column('user', verbose_name=_(u"Person"), filters=(lambda user: user.first_name + " " + user.last_name,))
+    change_message = tables.Column('change_message', verbose_name=_(u"Change Message"))
+    action_flag = tables.Column('action_flag', verbose_name=_("Type of Action"), 
                                                 filters=(get_flag_name,))

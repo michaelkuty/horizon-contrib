@@ -1,0 +1,38 @@
+{% load mathfilters %}
+
+<ul class="pagination pagination-sm">
+
+  {% if table.has_previous %}
+  <li><a href="?page={{ table.previous_page_number }}">&laquo;</a></li>
+  {% else %}
+  <li class="disabled"><a>&laquo;</a></li>
+  {% endif %}
+
+  {% for num in table.paginator.page_range %}
+      {% if forloop.counter == 5 %}
+        <li><a href="#" class="disabled">...</a></li>
+      {% endif %}
+      {% if forloop.counter < 5 or forloop.revcounter <= 2 %}
+        {% if num == table.get_page %}
+          <li class="active"><a href="#" style="text-decoration:underline;">{{ num }}</a></li>
+        {% else %}
+        <li><a href="?page={{ num }}">{{ num }}</a></li>
+        {% endif %}
+      {% endif %}
+  {% endfor %}
+
+  {% if table.show_all_url %}&nbsp;&nbsp;
+    {% if not table.get_page %}
+    <li class="active"><a href="?page=all" style="text-decoration:underline;" class="showall">Zobrazit vše</a></li>
+    {% else %}
+    <li><a href="?page=all" style="text-decoration:underline;" class="showall">Zobrazit vše</a></li>
+    {% endif %}
+  {% endif %}
+
+  {% if table.has_next %}
+  <li><a href="?page={{ table.next_page_number }}">&raquo;</a></li>
+  {% else %}
+  <li class="disabled"><a>&raquo;</a></li>
+  {% endif %}
+  
+</ul>
