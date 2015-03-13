@@ -32,7 +32,7 @@ SelfHandlingModelForm
 
 .. code-block:: python
 
-    from horizon_contrib import ModalFormView
+    from horizon_contrib.forms import ModalFormView
 
     class CreateView(ModalFormView):
 
@@ -47,10 +47,11 @@ Modal Tabs
 .. code-block:: python
 
     from horizon_contrib.tabs import ModelFormTab, TableTab
+    from horizon_contrib.forms import SHMForm # shortcat for SelfHandlingModelForm
 
     from .tables import NoteFormSetTable, DocumentTable
 
-    class IssueUpdateForm(SelfHandlingModelForm):
+    class IssueUpdateForm(SHMForm):
 
         class Meta:
             model = Issue
