@@ -31,6 +31,7 @@ class ModalFormMixin(object):
             context['add_to_field'] = self.request.META[ADD_TO_FIELD_HEADER]
         return context
 
+
 class ModalFormView(ModalFormMixin, generic.FormView):
     """The main view class from which all views which handle forms in Horizon
     should inherit. It takes care of all details with processing
@@ -96,6 +97,7 @@ class ModalFormView(ModalFormMixin, generic.FormView):
             # If handled didn't return, we can assume something went
             # wrong, and we should send back the form as-is.
             return self.form_invalid(form)
+
 
 class ModelModalView(ModalFormView):
     pass

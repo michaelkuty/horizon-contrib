@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 import django
 
 from distutils.version import StrictVersion
 
-from horizon import forms as horizon_forms
-from horizon import messages
-from django import forms as django_forms
-from django.conf import settings
 from django.db import models
 
 """
@@ -14,6 +10,7 @@ these method is used in ``SelfHandlingModalForm`` for easily save model
 because django < 1.7 not supported update_or_create
 https://docs.djangoproject.com/en/1.7/ref/models/querysets/#django.db.models.query.QuerySet.update_or_create
 """
+
 
 def create_or_update_and_get(model_class, data):
 
@@ -38,9 +35,9 @@ def create_or_update_and_get(model_class, data):
         else:
             # create
             instance = model_class()
-     
+
         # update (or finish creating)
-        for key,value in data.items():
+        for key, value in data.items():
             field = model_class._meta.get_field(key)
             if not field:
                 continue
