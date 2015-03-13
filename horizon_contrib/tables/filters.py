@@ -27,3 +27,12 @@ def status_icon(value):
     if value is True:
         return SafeString('<i class=\"icon-large fa fa-ok\"></i>')
     return SafeString('<i class=\"icon-large fa fa-remove"></i>')
+
+
+def filter_m2m(datum):
+    """helper for aggregation of m2m relation
+    """
+    items = []
+    for d in datum.all():
+        items.append(d.__unicode__())
+    return ", ".join(items)
