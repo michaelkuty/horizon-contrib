@@ -16,7 +16,6 @@ ModelTable
 
     class MyModelTable(ModelTable):
 
-
         class Meta:
 
             model_class = MyModelClass
@@ -37,7 +36,9 @@ and then `views.py`
         table_class = MyModelTable
         template_name = 'myapp/mymodel/index.html' # or leave blank
 
-note: for easy table inheritence we supports model_class directly on the table class
+.. note:: 
+
+    for easy table inheritence we supports ``model_class`` directly on the table class
 
 .. code-block:: python
 
@@ -55,15 +56,37 @@ Specifing columns and ordering
 
 .. code-block:: python
 
-    class MyModelTable(ModelTable):
+    from horizon_contrib.tables import ModelTable
 
+    class MyModelTable(ModelTable):
 
         class Meta:
             columns = ("project", "issue", ..)
             order_by = ("id") # queryset.order_by(self._meta.order_by)
 
-note: order by is used for generic queryset for more customization please override get_table_data
+.. note::
 
+    order by is used for generic queryset for more customization override ``get_table_data``
+
+Custom columns
+--------------
+
+.. code-block:: python
+
+    from horizon import tables
+    from horizon_contrib.tables import ModelTable
+
+    class MyModelTable(ModelTable):
+
+        project = tables.Column('project', ..)
+
+        class Meta:
+            extra_columns = True # generates other columns within ``project``
+            # default is False
+
+.. note::
+
+    In the default state if we specified one column no other columns will be generated for this purpose set ``extra_columns = True``
 
 Custom queryset
 ---------------
@@ -93,6 +116,9 @@ PaginatedTable
             model_class = MyModelClass
 
 and then `views.py`
+
+* -refactoring and cleanup obsolete and unless stuff-
+
 
 .. code-block:: python
 

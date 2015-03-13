@@ -1,3 +1,4 @@
 pbr>=0.6,!=0.7,<1.0
 six>=1.9.0
 requests>=2.1.0
+git+https://github.com/openstack/horizon.git@stable/juno

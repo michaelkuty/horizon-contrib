@@ -24,3 +24,16 @@ or specify one field
         fields = ['name', 'subject']
 
         lookups = ['project__name']
+
+
+UpdateAction
+------------
+
+Ajax update power !
+
+.. code-block:: python
+
+	from horizon import tables
+    from horizon_contrib.tables.actions import UpdateAction
+
+    my_column = tables.Columns('my_column', update_action=UpdateAction)

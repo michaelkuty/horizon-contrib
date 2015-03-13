@@ -13,6 +13,18 @@ from horizon.tables.base import DataTableMetaclass, DataTableOptions
 from horizon_contrib.common.content_type import get_class
 
 from .filters import filter_m2m
+from .actions import UpdateAction
+
+
+class AjaxUpdateRow(tables.Row):
+    """ row with implemented get_data for generic ajax update
+    """
+
+    ajax = True
+
+    def get_data(self, request, id):
+        instance = self.table._model_class.objects.get(id=id)
+        return instance
 
 
 class ModelTableOptions(DataTableOptions):
@@ -25,14 +37,28 @@ class ModelTableOptions(DataTableOptions):
 
         .. attribute:: order_by
 
-        Array for ordering default is ('id')
+        Array for ordering default is ('-id')
+
+        .. attribute:: extra_columns is default to False
+
+        This means if we specify some columns no extra
+        columns will be generated
+
     """
 
     def __init__(self, options):
 
+        # set our row class
+        self.row_class = getattr(options, "row_class", AjaxUpdateRow)
+        if options:
+            setattr(options, "row_class", self.row_class)
+
+        super(ModelTableOptions, self).__init__(options)
         self.model_class = getattr(options, 'model_class', None)
         self.order_by = getattr(options, 'order_by', ("-id"))
-        super(ModelTableOptions, self).__init__(options)
+        self.extra_columns = getattr(options, "extra_columns", False)
+        self.ajax_update = getattr(options, "ajax_update", True)
+        self.update_action = getattr(options, "update_action", UpdateAction)
 
 
 class ModelTableMetaclass(DataTableMetaclass):
@@ -133,26 +159,31 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
         fields = fields_for_model(
             self._model_class, fields=getattr(self._meta, "columns", []))
 
-        columns = {}
+        columns = self._columns
+        actions = columns.pop("actions", [])
+        #actions = self._columns.pop("actions", [])
 
-        many = [i.name for i in self._model_class._meta.many_to_many]
+        if not len(columns) > 0 or self._meta.extra_columns:
+            many = [i.name for i in self._model_class._meta.many_to_many]
 
-        for name, field in fields.iteritems():
-            column_kwargs = {
-                "verbose_name": getattr(field, "label", name),
-                "form_field": field
-            }
-            if name in many:
-                column_kwargs["filters"] = filter_m2m,
-            column = tables.Column(name, **column_kwargs)
-            column.table = self
-            columns[name] = column
+            for name, field in fields.iteritems():
+                if name not in columns:
+                    column_kwargs = {
+                        "verbose_name": getattr(field, "label", name),
+                        "form_field": field
+                    }
+                    if self._meta.ajax_update:
+                        column_kwargs["update_action"] = self._meta.update_action
+                    if name in many:
+                        column_kwargs["filters"] = filter_m2m,
+                    column = tables.Column(name, **column_kwargs)
+                    column.table = self
+                    columns[name] = column
 
-        actions = self._columns.pop("actions")
-        columns["actions"] = actions
-        self._columns.update(columns)
-        self.columns.update(columns)
-        self._populate_data_cache()
+            columns["actions"] = actions
+            self._columns.update(columns)
+            self.columns.update(columns)
+            self._populate_data_cache()
 
         super(ModelTable, self).__init__(
             request=request,
