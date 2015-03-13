@@ -1,3 +1,8 @@
 pbr==0.10.8
 six>=1.9.0
 requests>=2.1.0
+
+# This project does depend on horizon as a library, but the
+# openstack tooling does not play nicely with projects that
+# are not publicly available in pypi.
+# -e git+https://github.com/openstack/horizon.git@stable/juno

@@ -85,6 +85,10 @@ tables.py
 
 *Thats all! This code generate Table with name and description columns which has AJAX inline edit.*
 
+.. warning::
+
+    This project depends on Horizon library, but isn't in the requirements because we want install horizon/openstack dashboard as we want !
+
 Read more
 ---------
 
