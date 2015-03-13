@@ -26,8 +26,8 @@ Tested with
 -----------
 
 * Horizon Icehouse, Juno, Kilo
-* Django 1.5 >< 1.8
-* Python 2.6 < 3.4
+* Django 1.5 .. 1.8
+* Python 2.6 .. 3.4
 
 Installation
 ------------
@@ -45,11 +45,6 @@ Configuration
 
 	INSTALLED_APPS += ('horizon_contrib',)
 
-
-Work well with another Horizon plugins
-
-* Horizon Overrides - https://github.com/michaelkuty/horizon-overrides-plugin
-* Image Proxy - https://pypi.python.org/pypi/django_image_proxy
 
 Read more
 ---------
