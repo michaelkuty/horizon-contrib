@@ -117,9 +117,6 @@ PaginatedTable
 
 and then `views.py`
 
-* -refactoring and cleanup obsolete and unless stuff-
-
-
 .. code-block:: python
 
     from horizon_contrib.tables.views import PaginatedView
@@ -154,3 +151,26 @@ and then `views.py`
 
     class IndexView(IndexView):
         table_class = PaginatedModelTable
+
+
+Inheritance of the 'Meta' class
+-------------------------------
+
+.. code-block:: python
+
+    from horizon_contrib.tables import ModelTable
+
+    class IssueTable(ModelTable):
+
+        subject = tables.Column('subject')
+
+        class Meta:
+
+            model_class = "mymodelclass"
+            extra_columns = True
+
+    class UserIssueTable(ModelTable):
+
+        class Meta(IssueTable.Meta):
+
+            extra_columns = False
