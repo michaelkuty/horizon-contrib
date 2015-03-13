@@ -49,6 +49,7 @@ Configuration
 Read more
 ---------
 
+* horizon-contrib.readthedocs.org
 * https://www.djangoproject.com/
 * https://github.com/openstack/horizon
 * http://docs.openstack.org/developer/horizon/
