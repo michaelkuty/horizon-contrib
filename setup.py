@@ -10,8 +10,4 @@ except ImportError:
 
 setuptools.setup(
     setup_requires=['pbr'],
-    pbr=True,
-    dependency_links=['git+https://github.com/openstack/horizon.git@stable/juno#egg=horizon'],
-    extras_require={
-    'horizon':["git+https://github.com/openstack/horizon.git@stable/juno#egg=horizon"],
-    })
+    pbr=True)
