@@ -43,11 +43,21 @@ Tested with
 Installation
 ------------
 
+This project depends on Horizon library, but isn't installed automatically !
+
+If you haven't installed Horizon, do something like this in your ``virtualenv``:
+
 .. code-block:: bash
 
-    pip install horizon-contrib
+    (virtualenv)majklk@horizon-multi:~# pip install git+https://github.com/openstack/horizon.git@stable/juno
 
-    pip install git+https://github.com/michaelkuty/horizon-contrib.git@develop
+or clone and add to ``$PYTHONPATH``.
+
+.. code-block:: bash
+
+    (virtualenv)majklk@horizon-multi:~# pip install horizon-contrib
+
+    (virtualenv)majklk@horizon-multi:~# pip install git+https://github.com/michaelkuty/horizon-contrib.git@develop
 
 Configuration
 -------------
@@ -84,10 +94,6 @@ tables.py
             model_class = Project
 
 *Thats all! This code generate Table with name and description columns which has AJAX inline edit.*
-
-.. warning::
-
-    This project depends on Horizon library, but isn't in the requirements because we want install horizon/openstack dashboard as we want !
 
 Read more
 ---------
