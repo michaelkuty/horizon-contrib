@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
-from horizon import tables
 from django.utils.translation import ugettext_lazy as _
+from horizon import tables
 
 
 class BaseFilterAction(tables.FilterAction):
@@ -80,4 +80,31 @@ class UpdateAction(object):
         This method is meant to be overridden with more specific checks.
         Data of the row and of the cell are passed to the method.
         """
+        return True
+
+
+class ModelActionMixin(object):
+
+    def __init__(self, **kwargs):
+        super(ModelActionMixin, self).__init__(**kwargs)
+        self.success_url = kwargs.get('success_url', None)
+        self.data_type_singular = self.table._model_class._meta.verbose_name
+
+
+class DeleteAction(tables.DeleteAction, ModelActionMixin):
+    action_present = ("Delete",)
+    action_past = ("Deleted",)
+    name = "delete"
+
+    # solve init error without set this variables
+    data_type_singular = "Instance"
+    data_type_plular = "Instances"
+
+    def delete(self, request, obj_id=None):
+        if obj_id:
+            instance = self.table._model_class.objects.get(
+                **{self.table._model_class._meta.pk.name: obj_id})
+            instance.delete()
+
+    def allowed(self, request, instance):
         return True

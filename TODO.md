@@ -7,6 +7,7 @@
 * [ ] make generic views for index(PaginatedTable), create(ModalForm), update(ModalForm), delete(BatchAction)
 * [ ] implement custom fields and lookups on FilterAction
 * [ ] BaseClient and refactor API module
+* [ ] run Delete Action in transaction
 * [ ] TESTS !
 * [ ] Pep8 cleanup
 
