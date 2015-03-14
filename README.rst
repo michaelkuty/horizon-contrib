@@ -49,15 +49,15 @@ If you haven't installed Horizon, do something like this in your ``virtualenv``:
 
 .. code-block:: bash
 
-    (virtualenv)majklk@horizon-multi:~# pip install git+https://github.com/openstack/horizon.git@stable/juno
+    (env)majklk@horizon:~# pip install git+https://github.com/openstack/horizon.git@stable/juno
 
 or clone and add to ``$PYTHONPATH``.
 
 .. code-block:: bash
 
-    (virtualenv)majklk@horizon-multi:~# pip install horizon-contrib
+    (env)majklk@horizon:~# pip install horizon-contrib
 
-    (virtualenv)majklk@horizon-multi:~# pip install git+https://github.com/michaelkuty/horizon-contrib.git@develop
+    (env)majklk@horizon:~# pip install git+https://github.com/michaelkuty/horizon-contrib.git@develop
 
 Configuration
 -------------
