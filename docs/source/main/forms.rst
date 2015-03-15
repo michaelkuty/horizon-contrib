@@ -41,6 +41,33 @@ SelfHandlingModelForm
 
         template_name = 'redmine/issue/create.html'
 
+or simple use our ``CreateView`` which is based on SelfHandlingForm but use Django ModelForm
+
+here we can specified fields array which be used for modelform factory or our ``form_class``.
+
+CreateView
+----------
+
+.. code-block:: python
+
+    from horizon_contrib.forms import CreateView
+
+    class CreateView(CreateView):
+
+        name = _('Create Whatever') # your "action" name 
+
+        form_class = None # your form 
+        template_name = 'horizon_contrib/forms/create.html' # your template
+
+        success_url = ...
+
+
+UpdateView
+----------
+
+Nothing special here. This view is same as ``CreateView``, but tries getting initial data
+
+
 Modal Tabs
 ----------
 

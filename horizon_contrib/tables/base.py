@@ -11,9 +11,10 @@ from horizon import tables
 from horizon.tables import Column
 from horizon.tables.base import DataTableMetaclass, DataTableOptions
 from horizon_contrib.common.content_type import get_class
+from django.db import models
 
 from .filters import filter_m2m
-from .actions import UpdateAction
+from .actions import UpdateColumnAction
 
 
 class AjaxUpdateRow(tables.Row):
@@ -58,7 +59,8 @@ class ModelTableOptions(DataTableOptions):
         self.order_by = getattr(options, 'order_by', ("-id"))
         self.extra_columns = getattr(options, "extra_columns", False)
         self.ajax_update = getattr(options, "ajax_update", True)
-        self.update_action = getattr(options, "update_action", UpdateAction)
+        self.update_action = getattr(
+            options, "update_action", UpdateColumnAction)
 
 
 class ModelTableMetaclass(DataTableMetaclass):
@@ -147,7 +149,7 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
 
     """
 
-    def __init__(self, request, data=None, needs_form_wrapper=None, **kwargs):
+    def __init__(self, request, data=None, model_class=None, needs_form_wrapper=None, **kwargs):
 
         super(ModelTable, self).__init__(
             request=request,
@@ -155,16 +157,22 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
             needs_form_wrapper=needs_form_wrapper,
             **kwargs)
 
+        self.model_class = kwargs.pop('cls_name', None)
+
+        if not hasattr(self, "model_class") and model_class:
+            self.model_class = model_class
+
         # get fields and makes columns
         fields = fields_for_model(
-            self._model_class, fields=getattr(self._meta, "columns", []))
+            self._model_class,
+            fields=getattr(self._meta, "columns", []))
 
         columns = self._columns
         actions = columns.pop("actions", [])
-        #actions = self._columns.pop("actions", [])
 
         if not len(columns) > 0 or self._meta.extra_columns:
-            many = [i.name for i in self._model_class._meta.many_to_many]
+            many = [i.name for i in
+                    self._model_class._meta.many_to_many]
 
             for name, field in fields.iteritems():
                 if name not in columns:
@@ -173,14 +181,16 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
                         "form_field": field
                     }
                     if self._meta.ajax_update:
-                        column_kwargs["update_action"] = self._meta.update_action
+                        column_kwargs["update_action"] = \
+                            self._meta.update_action
                     if name in many:
                         column_kwargs["filters"] = filter_m2m,
                     column = tables.Column(name, **column_kwargs)
                     column.table = self
                     columns[name] = column
 
-            columns["actions"] = actions
+            if actions:
+                columns["actions"] = actions
             self._columns.update(columns)
             self.columns.update(columns)
             self._populate_data_cache()
@@ -191,29 +201,18 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
             needs_form_wrapper=needs_form_wrapper,
             **kwargs)
 
-        has_get_table_data = hasattr(
-            self, 'get_table_data') and callable(self.get_table_data)
-
-        if not has_get_table_data and not hasattr(self, "model_class"):
-            cls_name = self.__class__.__name__
-            raise NotImplementedError('You must define either a model_class or\
-                                      "get_table_data" '
-                                      'method on %s.' % cls_name)
-
     @property
     def _model_class(self):
-        mcs = getattr(
-            self._meta, "model_class", getattr(self, "model_class", None))
-        if isinstance(mcs, basestring):
+        mcs = getattr(self._meta, "model_class", None)
+        if not mcs:
+            mcs = getattr(self, "model_class", None)
+
+        if isinstance(mcs, six.string_types) and mcs:
             try:
                 self.model_class = get_class(mcs)
             except Exception, e:
                 raise e
-        mcls = getattr(self, "model_class", mcs)
-        if not mcls:
-            raise Exception("Missing model_class or override one \
-                            of get_table_data, get_paginator_data")
-        return mcls
+        return self.model_class
 
     def get_table_data(self):
         """generic implementation
@@ -223,8 +222,13 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
         if self._model_class is None and not callable(self.get_table_data):
             raise Exception(
                 "you must specify ``model_class`` or override get_table_data")
-        object_list = self._model_class.objects.all().order_by(
-            self._meta.order_by)
+        object_list = self._model_class.objects.all()
+
+        # check if is queryset
+        # TODO: use native python sorted function
+        if hasattr(object_list, "order_by"):
+            object_list.order_by(
+                self._meta.order_by)
         return object_list
 
 
@@ -354,15 +358,6 @@ class PaginatedTable(ModelTable, PaginationMixin):
 
         super(PaginatedTable, self).__init__(*args, **kwargs)
 
-        has_get_table_data = hasattr(
-            self, 'get_paginator_data') and callable(self.get_paginator_data)
-
-        if not has_get_table_data and not hasattr(self, "model_class"):
-            cls_name = self.__class__.__name__
-            raise NotImplementedError('You must define either a model_class \
-                                       or "get_paginator_data" '
-                                      'method on %s.' % cls_name)
-
         self.PAGINATION_COUNT = getattr(
             settings, "PAGINATION_COUNT", self.PAGINATION_COUNT)
 
@@ -378,15 +373,3 @@ class PaginatedModelTable(ModelTable, PaginationMixin):
                             "horizon_contrib/tables/_paginated_data_table.html"
 
         super(PaginatedModelTable, self).__init__(*args, **kwargs)
-
-        has_get_table_data = hasattr(
-            self, 'get_paginator_data') and callable(self.get_paginator_data)
-
-        if not has_get_table_data and not hasattr(self, "model_class"):
-            cls_name = self.__class__.__name__
-            raise NotImplementedError('You must define either a model_class \
-                                       or "get_paginator_data" '
-                                      'method on %s.' % cls_name)
-
-        self.PAGINATION_COUNT = getattr(
-            settings, "PAGINATION_COUNT", self.PAGINATION_COUNT)

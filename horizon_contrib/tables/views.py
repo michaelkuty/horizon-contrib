@@ -1,21 +1,30 @@
 # -*- coding: UTF-8 -*-
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django import http
+from django import http, shortcuts
 from django.conf import settings
-from django import shortcuts
-from django.core.urlresolvers import reverse
-from django.core.urlresolvers import reverse_lazy
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.forms import models as model_forms
 from django.utils.translation import ugettext_lazy as _
-from django.forms.models import model_to_dict
-from django.views.generic import edit
-from horizon import tables
+from horizon import forms, tables
+from horizon_contrib.common import content_type as ct
 
 
-class IndexView(tables.DataTableView):
+class ContextMixin(object):
+
+    def get_name(self):
+        return getattr(self, 'name', self.__class__.__name__)
+
+    def get_title(self):
+        return self.get_name() + _(' of ') + \
+            self.get_table()._model_class._meta.verbose_name
+
+
+class IndexView(ContextMixin, tables.DataTableView):
+
     """view with implemented get_data where recall table.get_table_data
     """
 
-    template_name = 'horizon_contrib/tables/index.html' # or leave blank
+    template_name = 'horizon_contrib/tables/index.html'  # or leave blank
 
     def get_data(self):
         objects = []
@@ -30,7 +39,8 @@ class IndexView(tables.DataTableView):
             return None
 
 
-class PaginatedView(tables.DataTableView):
+class PaginatedView(IndexView):
+
     """basic pagiated view
     """
 
@@ -45,8 +55,6 @@ class PaginatedView(tables.DataTableView):
                 except NotImplementedError, e:
                     raise e
             else:
-                objects = table.get_page_data() #defaultne 1
+                objects = table.get_page_data()  # defaultne 1
             return objects
-        else:
-            """chybi table mel by zarvat i horizon"""
-            return None
+        return objects

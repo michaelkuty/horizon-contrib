@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 
+from django.core import urlresolvers
 from django.utils.translation import ugettext_lazy as _
 from horizon import tables
 
@@ -53,13 +54,14 @@ class FilterAction(BaseFilterAction):
     pass
 
 
-class UpdateAction(object):
+class UpdateColumnAction(object):
     """A table action for cell updates by inline editing."""
 
     name = "update"
     action_present = _("Update")
     action_past = _("Updated")
-    data_type_singular = "update"
+
+    data_type_singular = 'Instance'
 
     def action(self, request, datum, obj_id, cell_name, new_cell_value):
         self.update_cell(request, datum, obj_id, cell_name, new_cell_value)
@@ -83,22 +85,38 @@ class UpdateAction(object):
         return True
 
 
-class ModelActionMixin(object):
+class CreateAction(tables.LinkAction):
 
-    def __init__(self, **kwargs):
-        super(ModelActionMixin, self).__init__(**kwargs)
-        self.success_url = kwargs.get('success_url', None)
-        self.data_type_singular = self.table._model_class._meta.verbose_name
+    name = "create_instance"
+    verbose_name = "Create"
+    url = "horizon_contrib:generic:create"
+    classes = ("ajax-modal", "btn-edit")
+
+    def get_link_url(self, instance=None):
+        model_name = self.table._model_class.__name__
+        return urlresolvers.reverse_lazy(self.url, args=[model_name])
 
 
-class DeleteAction(tables.DeleteAction, ModelActionMixin):
+class UpdateAction(tables.LinkAction):
+
+    name = "update_instance"
+    verbose_name = "Update"
+    url = "horizon_contrib:generic:update"
+    classes = ("ajax-modal", "btn-edit")
+
+    def get_link_url(self, instance):
+        model_name = self.table._model_class.__name__
+        return urlresolvers.reverse_lazy(
+            self.url, args=[model_name, instance.id])
+
+
+class DeleteAction(tables.DeleteAction):
     action_present = ("Delete",)
     action_past = ("Deleted",)
     name = "delete"
 
-    # solve init error without set this variables
-    data_type_singular = "Instance"
-    data_type_plular = "Instances"
+    # FIX ME
+    data_type_singular = 'Instance'
 
     def delete(self, request, obj_id=None):
         if obj_id:
@@ -108,3 +126,7 @@ class DeleteAction(tables.DeleteAction, ModelActionMixin):
 
     def allowed(self, request, instance):
         return True
+
+    def __init__(self, **kwargs):
+        super(DeleteAction, self).__init__(**kwargs)
+        self.success_url = kwargs.get('success_url', None)

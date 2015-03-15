@@ -7,7 +7,9 @@ horizon django contrib
 
 Library which provide common stuff for creating application using Django and Horizon(part of OpenStack Dashboard).
 
-This library aims to creating applications with Django models, where we can expect generic stuff.
+This library aims to creating applications with Django models, where we can expect generic stuff. 
+
+*With this toolkit is building applications blazingly fast and easy !*
 
 For other applications which is based on API (Horizon Dashboards without model) provide some common stuff for fast creating API clients.
 
@@ -18,15 +20,7 @@ Horizon is pretty package for fast creating UI for everything. But is designed f
 If we connect Horizon with typical Django application we must create same pieces of same components and this is realy suck !
 We want more declarative and less imperative code. For this purpose we create this library which compose common stuff in one place.
 
-What does solves ?
-------------------
-
-* ModelTable, PaginatedTable (based on DataTable)
-* IndexView, PaginatedView (based on DataTableView)
-* ModelModalForm(based on SelfhandlingForm)
-* ModelFormTab, TableTab, ..
-* UpdateAction, FilterAction
-* common filters
+See [Documentation]_ !
 
 Requires
 --------
@@ -66,6 +60,22 @@ Configuration
 
     INSTALLED_APPS += ('horizon_contrib',)
 
+Optionaly include ``horizon_contrib.urls`` with ``namespace='horizon_contrib'``
+
+.. code-block:: python
+
+    from django.conf.urls import patterns, include, url
+
+    urlpatterns = patterns('',
+        ...
+        url(r'^contrib/', include('horizon_contrib.urls', namespace='horizon_contrib'), ),
+        ...
+    )
+
+.. note::
+
+    ``namespace`` is important for url ``reverse``
+
 Show me the code !
 ------------------
 
@@ -95,6 +105,8 @@ tables.py
 
 *Thats all! This code generate Table with name and description columns which has AJAX inline edit.*
 
+For more code see [Documentation]_.
+
 Read more
 ---------
 
@@ -105,3 +117,4 @@ Read more
 
 .. |License badge| image:: http://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat
 .. |Doc badge| image:: https://readthedocs.org/projects/horizon-contrib/badge/?version=stable
+.. [Documentation] http://horizon-contrib.readthedocs.org

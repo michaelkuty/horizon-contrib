@@ -25,6 +25,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   main/tutorial
    main/tables
    main/forms
    main/actions
@@ -58,10 +59,26 @@ Configuration
 
     INSTALLED_APPS += ('horizon_contrib',)
 
+Optionaly include ``horizon_contrib.urls`` with ``namespace='horizon_contrib'``. This is only for generic functionality like a index,create,update,delete views.
+
+.. code-block:: python
+
+    from django.conf.urls import patterns, include, url
+
+    urlpatterns = patterns('',
+        ...
+        url(r'^contrib/', include('horizon_contrib.urls', namespace='horizon_contrib'), ),
+        ...
+    )
+
+.. note::
+
+    ``namespace`` is important for url ``reverse``
+
 Show me the code !
 ------------------
 
-models.py
+*Your* models.py
 
 .. code-block:: python
 
@@ -72,7 +89,7 @@ models.py
         name = models.CharField..
         description = models.CharField..
 
-tables.py
+*New* tables.py
 
 .. code-block:: python
 
