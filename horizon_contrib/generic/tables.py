@@ -8,7 +8,10 @@ class GenericTable(tables.ModelTable):
         return datum.__unicode__()
 
     def get_object_id(self, datum):
-        return datum.pk
+        id = getattr(datum, 'id', None)
+        if not id and isinstance(datum, dict):
+            id = datum.get('id', self.get_object_display())
+        return id
 
     class Meta:
 

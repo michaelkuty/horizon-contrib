@@ -4,14 +4,15 @@ from operator import attrgetter
 import six
 from django.conf import settings
 from django.core.paginator import EmptyPage, Paginator
+from django.db import models
 from django.forms.models import fields_for_model
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext_lazy as _
 from horizon import tables
 from horizon.tables import Column
 from horizon.tables.base import DataTableMetaclass, DataTableOptions
+from horizon_contrib.api.models import DictModel
 from horizon_contrib.common.content_type import get_class
-from django.db import models
 
 from . import filters
 from .actions import UpdateColumnAction
@@ -163,44 +164,45 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
         if not hasattr(self, "model_class") and model_class:
             self.model_class = model_class
 
-        # get fields and makes columns
-        fields = fields_for_model(
-            self._model_class,
-            fields=getattr(self._meta, "columns", []))
+        if self._model_class:
+            # get fields and makes columns
+            fields = fields_for_model(
+                self._model_class,
+                fields=getattr(self._meta, "columns", []))
 
-        columns = self._columns
-        actions = columns.pop("actions", [])
+            columns = self._columns
+            actions = columns.pop("actions", [])
 
-        if not len(columns) > 0 or self._meta.extra_columns:
-            many = [i.name for i in
-                    self._model_class._meta.many_to_many]
+            if not len(columns) > 0 or self._meta.extra_columns:
+                many = [i.name for i in
+                        self._model_class._meta.many_to_many]
 
-            for name, field in fields.iteritems():
-                if name not in columns:
-                    column_kwargs = {
-                        "verbose_name": getattr(field, "label", name),
-                        "form_field": field
-                    }
-                    if self._meta.ajax_update:
-                        column_kwargs["update_action"] = \
-                            self._meta.update_action
-                    if name in many:
-                        column_kwargs["filters"] = filters.filter_m2m,
-                    column = tables.Column(name, **column_kwargs)
-                    column.table = self
-                    columns[name] = column
+                for name, field in fields.iteritems():
+                    if name not in columns:
+                        column_kwargs = {
+                            "verbose_name": getattr(field, "label", name),
+                            "form_field": field
+                        }
+                        if self._meta.ajax_update:
+                            column_kwargs["update_action"] = \
+                                self._meta.update_action
+                        if name in many:
+                            column_kwargs["filters"] = filters.filter_m2m,
+                        column = tables.Column(name, **column_kwargs)
+                        column.table = self
+                        columns[name] = column
 
-            if actions:
-                columns["actions"] = actions
-            self._columns.update(columns)
-            self.columns.update(columns)
-            self._populate_data_cache()
+                if actions:
+                    columns["actions"] = actions
+                self._columns.update(columns)
+                self.columns.update(columns)
+                self._populate_data_cache()
 
-        super(ModelTable, self).__init__(
-            request=request,
-            data=data,
-            needs_form_wrapper=needs_form_wrapper,
-            **kwargs)
+            super(ModelTable, self).__init__(
+                request=request,
+                data=data,
+                needs_form_wrapper=needs_form_wrapper,
+                **kwargs)
 
     @property
     def filtered_data(self):
@@ -234,8 +236,13 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
             for key, val in six.iteritems(datum):
                 if isinstance(val, list):
                     datum[key] = filters.join_list(val)
-            # create our object
-            model = self._model_class(**datum)
+            if self._model_class:
+                # create our object
+                model = self._model_class(**datum)
+            else:
+                # create dictionary with dotted notation
+                model = DictModel(**datum)
+
             items.append(model)
         return items
 

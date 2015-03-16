@@ -64,3 +64,21 @@ class APIModel(models.Model, CRUDMixin):
         abstract = True
         verbose_name = "object"
         verbose_name_plural = "objects"
+
+
+class DotDict(dict):
+
+    """ Dictionary with dot access """
+
+    def __getattr__(self, attr):
+        return self.get(attr, None)
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
+
+
+class DictModel(DotDict, models.Model):
+
+    class Meta:
+        abstract = True
+        verbose_name = "object"
+        verbose_name_plural = "objects"

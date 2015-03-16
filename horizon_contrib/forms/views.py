@@ -180,7 +180,8 @@ class CreateView(ModelFormMixin, ContextMixin, ModalFormView):
         return self.get_form_class()(**self.get_form_kwargs())
 
     def get_success_url(self):
-        if self.request.META.get("HTTP_REFERER") != self.request.build_absolute_uri():
+        if self.request.META.get("HTTP_REFERER") != \
+                self.request.build_absolute_uri():
             return self.request.META.get('HTTP_REFERER')
         return super(CreateView, self).get_success_url()
 
@@ -218,10 +219,6 @@ class UpdateView(CreateView):
     template_name = 'horizon_contrib/forms/create.html'
 
     name = _('Update')
-
-    def get_form(self, form_class):
-        """Returns an instance of the form to be used in this view."""
-        return self.get_form_class()(**self.get_form_kwargs())
 
     def get_initial(self):
         if isinstance(self.object, dict):
