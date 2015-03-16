@@ -42,6 +42,11 @@ Manager -> Model -> Table -> bound actions(CRUD with Filter) -> View -> Paginati
 
 Manager has all responsibilty for get data from remote API. It`s simple object which has similar methods with django model managers. And it's bound to Abstract model.
 
+- Others
+
+    - tabs, templates (modal login, ...)
+    - set of common filters, templatetags
+
 See [Documentation]_ !
 
 Requires
