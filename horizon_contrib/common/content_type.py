@@ -1,5 +1,8 @@
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
+
+from .model_registry import get_model
 
 """
 helper for searching Content Type
@@ -41,6 +44,20 @@ def get_content_type(model_class):
 
     return content_type
 
+# move to utils
+
+CT_NAME = 'django.contrib.contenttypes'
+
+WITHOUT_CT = getattr(settings, 'WITHOUT_CT', False)
+
+
+def _is_contenttypes_enabled():
+
+    if CT_NAME in getattr(settings, 'INSTALLED_APPS', [])\
+            and not WITHOUT_CT:
+        return True
+    return False
+
 
 def get_class(name):
     """this method try to find model fron CT or our registry
@@ -49,4 +66,9 @@ def get_class(name):
     for this time only recall get_class_from_ct because our registiry
     does not exists
     """
-    return get_class_from_ct(name)
+
+    # if CT enabled search in
+    if _is_contenttypes_enabled():
+        return get_class_from_ct(name)
+    # in our registry
+    return get_model(name)
