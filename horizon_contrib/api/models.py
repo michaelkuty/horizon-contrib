@@ -1,4 +1,7 @@
 
+import copy
+
+import six
 from django.db import models
 from horizon_contrib.api.managers import Manager
 
@@ -44,6 +47,18 @@ class APIModel(models.Model, CRUDMixin):
 
     def __repr__(self):
         return str(self.pk)
+
+    def __init__(self, *args, **kwargs):
+        # here we must clean kwargs becase django raise exception
+        # if field not found defined on model
+        _kwargs = copy.copy(kwargs)
+
+        field_names = [f.name for f in self._meta.fields]
+        for key, value in six.iteritems(_kwargs):
+            if key not in field_names:
+                kwargs.pop(key)
+
+        super(APIModel, self).__init__(*args, **kwargs)
 
     class Meta:
         abstract = True

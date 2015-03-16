@@ -5,8 +5,9 @@
 * [x] for vanilla horizon usage must be extended DataTableOptions
 * [x] support for generic table from model class - construct table from model.fields
 * [x] make generic views for index(PaginatedTable), create(ModalForm), update(ModalForm), delete(BatchAction)
-* [ ] model registry and model manager queryset functions for model-less apps
-* [ ] serialize Table data to his model_class
+* [x] model registry and model manager queryset functions for model-less apps
+* [ ] create model class from dictionary
+* [x] serialize Table data to his model_class
 * [ ] implement custom fields and lookups on FilterAction
 * [ ] BaseClient and refactor API module
 * [ ] run Delete Action in transaction
