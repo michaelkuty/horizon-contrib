@@ -19,7 +19,10 @@ TODO: iterate over INSTALLED_APPS and autoregister models
 
 """
 
+import logging
 import horizon
+
+LOG = logging.getLogger(__name__)
 
 MODELS = {}
 
@@ -38,7 +41,12 @@ class ModelRegistry(object):
 
         global MODELS
 
-        return MODELS[model_name.lower()]
+        name = model_name.lower()
+
+        if name not in MODELS:
+            raise Exception('Model %s not found in %s' % (name, MODELS))
+
+        return MODELS[name]
 
 
 model_registry = ModelRegistry()

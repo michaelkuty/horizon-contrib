@@ -224,4 +224,6 @@ class UpdateView(CreateView):
         return self.get_form_class()(**self.get_form_kwargs())
 
     def get_initial(self):
+        if isinstance(self.object, dict):
+            return self.object
         return model_to_dict(self.object)

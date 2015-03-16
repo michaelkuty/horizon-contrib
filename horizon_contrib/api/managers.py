@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-from .base import ClientBase
+from horizon_contrib.api.base import ClientBase
 
 
 class Manager(ClientBase):

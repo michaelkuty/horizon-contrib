@@ -8,6 +8,7 @@ import json
 
 from horizon import messages
 from django.conf import settings
+from horizon_contrib.utils import list_to_dotdict
 
 LOG = logging.getLogger("client.base")
 
@@ -27,7 +28,30 @@ class ClientBase(object):
         except Exception, e:
             LOG.exception(e)
 
-    def request(self, request, path, method="GET", params={}):
+    def request(self, path, method="GET", params={}, request={}):
+        """main method which provide
+
+        .. attribute:: path
+
+        Relative URI '/projects' -> <self.api>/projects
+
+        .. attribute:: method
+
+        String Rest method
+
+        .. attribute:: params
+
+        Dictionary data which will be serialized to json
+
+        .. attribute:: request
+
+        Original request where lives user
+        with permissions AUTH_TOKEN or something else
+
+        If is provided, additional messages will be pushed.
+
+
+        """
         headers = {}
 
         _request = request
@@ -56,7 +80,7 @@ class ClientBase(object):
                 messages.error(_request, msg)
                 if settings.DEBUG:
                     raise Exception(msg)
-            return result
+            return list_to_dotdict(result)
         else:
             if getattr(settings, "DEBUG", False):
                 msg = "url: %s%s, method: %s, status: %s" % (
