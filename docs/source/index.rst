@@ -1,25 +1,51 @@
 
-=======================
-Horizon Contrib Toolkit
-=======================
+======================
+horizon-django contrib
+======================
 
 |PypiVersion| |License badge| |Doc badge| |Pypi|
 
+Library built on top of Django and Horizon(part of OpenStack Dashboard) for building modern web applications.
 
-Library which provide common stuff for creating application using Django and Horizon(part of OpenStack Dashboard).
+*With this toolkit is building applications blazingly fast and easy !*
 
-This library aims to creating applications with Django models, where we can expect generic stuff.
-
-For other applications which is based on API (Horizon Dashboards without model) provide some common stuff for fast creating API clients.
+This library provide generic implementation most of Horizon components, add more tools for easily scaffolding applications and preserves support for complex customizations.
 
 Short story
 -----------
 
 Horizon is pretty package for fast creating UI for everything. But is designed for model-less applications like an OpenStack Dashboard.
-
 If we connect Horizon with typical Django application we must create same pieces of same components and this is realy suck !
-
 We want more declarative and less imperative code. For this purpose we create this library which compose common stuff in one place.
+
+Features
+--------
+
+- With Django and Conent Types
+
+    - Views - PaginatedIndex, Create, Update, Delete on client side with AngularJS, D3.js, Bootstrap3, ..
+    - Tables with inline-ajax update
+    - Actions - Filter, Create, Update, Delete
+
+no implementation required, all Django stuff is generated automatically like an admin, but in more customizeable form.
+
+Model -> Form -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
+
+- Rest API Dashboards
+
+    - APIModel
+    - ClientBase - simple implementation which uses ``requests``
+
+and plus all features defined under Django, because if we have model most of things works well without any modification.
+
+Manager -> Model -> Form -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
+
+Manager has all responsibilty for get data from remote API. It`s simple object which has similar methods with django model managers. And it's bound to Abstract model.
+
+- Others
+
+    - tabs, templates (modal login, ...)
+    - set of common filters, templatetags
 
 Contents:
 
