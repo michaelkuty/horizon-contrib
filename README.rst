@@ -1,5 +1,5 @@
 
-|License badge| |Doc badge|
+|PypiVersion| |License badge| |Doc badge| |Pypi|
 
 ======================
 horizon django contrib
@@ -117,4 +117,6 @@ Read more
 
 .. |License badge| image:: http://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat
 .. |Doc badge| image:: https://readthedocs.org/projects/horizon-contrib/badge/?version=stable
+.. |Pypi| image:: https://pypip.in/d/horizon-contrib/badge.svg?style=flat
+.. |PypiVersion| image:: https://pypip.in/version/horizon-contrib/badge.svg?style=flat
 .. [Documentation] http://horizon-contrib.readthedocs.org

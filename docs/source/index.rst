@@ -3,7 +3,8 @@
 Horizon Contrib Toolkit
 =======================
 
-|License badge| |Doc badge|
+|PypiVersion| |License badge| |Doc badge| |Pypi|
+
 
 Library which provide common stuff for creating application using Django and Horizon(part of OpenStack Dashboard).
 
@@ -111,6 +112,9 @@ Show me the code !
     This project depends on Horizon library, but isn't in the requirements because we want install horizon/openstack dashboard as we want !
 
 
+|Donation|_
+
+
 Read more
 ---------
 
@@ -121,6 +125,12 @@ Read more
 
 .. |License badge| image:: http://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat
 .. |Doc badge| image:: https://readthedocs.org/projects/horizon-contrib/badge/?version=stable
+.. |Donation| image:: http://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif
+.. |Pypi| image:: https://pypip.in/d/horizon-contrib/badge.svg?style=flat
+.. |PypiVersion| image:: https://pypip.in/version/horizon-contrib/badge.svg?style=flat
+
+.. _Donation: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZYP3NZCQWF5CN
+
 
 Indices and tables
 ==================
@@ -128,4 +138,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
