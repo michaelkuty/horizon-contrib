@@ -5,15 +5,9 @@ import os
 import requests
 import logging
 import json
-import decimal
 
 from horizon import messages
 from django.conf import settings
-
-from roboticeclient.common.django import DjangoClient
-from roboticeclient.utils.dotdict import list_to_dotdict
-
-from roboticeclient.exceptions import Unauthorized, BadRequest, ClientException
 
 LOG = logging.getLogger("client.base")
 
@@ -28,7 +22,10 @@ class ClientBase(object):
     def __init__(self, **kwargs):
         super(ClientBase, self).__init__(**kwargs)
 
-        self.set_api()
+        try:
+            self.set_api()
+        except Exception, e:
+            LOG.exception(e)
 
     def request(self, request, path, method="GET", params={}):
         headers = {}
@@ -59,9 +56,6 @@ class ClientBase(object):
                 messages.error(_request, msg)
                 if settings.DEBUG:
                     raise Exception(msg)
-            else:
-                converted_dict = list_to_dotdict(result)
-                return converted_dict
             return result
         else:
             if getattr(settings, "DEBUG", False):
