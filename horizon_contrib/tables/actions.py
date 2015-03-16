@@ -89,7 +89,7 @@ class CreateAction(tables.LinkAction):
 
     name = "create_instance"
     verbose_name = "Create"
-    url = "horizon_contrib:generic:create"
+    url = "horizon:contrib:forms:create"
     classes = ("ajax-modal", "btn-edit")
 
     def get_link_url(self, instance=None):
@@ -101,7 +101,7 @@ class UpdateAction(tables.LinkAction):
 
     name = "update_instance"
     verbose_name = "Update"
-    url = "horizon_contrib:generic:update"
+    url = "horizon:contrib:forms:update"
     classes = ("ajax-modal", "btn-edit")
 
     def get_link_url(self, instance):

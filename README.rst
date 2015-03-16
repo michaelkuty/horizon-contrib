@@ -2,16 +2,14 @@
 |PypiVersion| |License badge| |Doc badge| |Pypi|
 
 ======================
-horizon django contrib
+horizon-django contrib
 ======================
 
-Library which provide common stuff for creating application using Django and Horizon(part of OpenStack Dashboard).
-
-This library aims to creating applications with Django models, where we can expect generic stuff. 
+Library built on top of Django and Horizon(part of OpenStack Dashboard) for building modern web applications.
 
 *With this toolkit is building applications blazingly fast and easy !*
 
-For other applications which is based on API (Horizon Dashboards without model) provide some common stuff for fast creating API clients.
+This library provide generic implementation most of Horizon components, add more tools for easily scaffolding applications and preserves support for complex customizations.
 
 Short story
 -----------
@@ -19,6 +17,30 @@ Short story
 Horizon is pretty package for fast creating UI for everything. But is designed for model-less applications like an OpenStack Dashboard.
 If we connect Horizon with typical Django application we must create same pieces of same components and this is realy suck !
 We want more declarative and less imperative code. For this purpose we create this library which compose common stuff in one place.
+
+Features
+--------
+
+- With Django and Conent Types
+
+    - Views - PaginatedIndex, Create, Update, Delete in Angular modal's
+    - Tables with inline-ajax update => 
+    - Graphs and statistics
+
+no implementation required, all Django stuff is generated automatically like an admin, but in more customizeable form.
+
+Model -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
+
+- Rest API Dashboards
+
+    - APIModel
+    - ClientBase - simple implementation which uses ``requests``
+
+and plus all features defined under Django because if we have model most of things works well without any modification.
+
+Manager -> Model -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
+
+Manager has all responsibilty for get data from remote API. It`s simple object which has similar methods with django model managers. And it's bound to Abstract model.
 
 See [Documentation]_ !
 
@@ -43,15 +65,11 @@ If you haven't installed Horizon, do something like this in your ``virtualenv``:
 
 .. code-block:: bash
 
-    (env)majklk@horizon:~# pip install git+https://github.com/openstack/horizon.git@stable/juno
-
-or clone and add to ``$PYTHONPATH``.
-
-.. code-block:: bash
-
     (env)majklk@horizon:~# pip install horizon-contrib
 
     (env)majklk@horizon:~# pip install git+https://github.com/michaelkuty/horizon-contrib.git@develop
+
+or clone and add to ``$PYTHONPATH``.
 
 Configuration
 -------------
@@ -60,7 +78,11 @@ Configuration
 
     INSTALLED_APPS += ('horizon_contrib',)
 
-Optionaly include ``horizon_contrib.urls`` with ``namespace='horizon_contrib'``
+    url(r'^contrib/', include('horizon_contrib.urls', namespace='horizon'), ),
+
+If used horizon, contrib urls will be included automatically.
+
+Manually include ``horizon_contrib.urls`` with ``namespace='horizon'`` is simple.
 
 .. code-block:: python
 
@@ -68,42 +90,13 @@ Optionaly include ``horizon_contrib.urls`` with ``namespace='horizon_contrib'``
 
     urlpatterns = patterns('',
         ...
-        url(r'^contrib/', include('horizon_contrib.urls', namespace='horizon_contrib'), ),
+        url(r'^contrib/', include('horizon_contrib.urls', namespace='horizon'), ),
         ...
     )
 
 .. note::
 
-    ``namespace`` is important for url ``reverse``
-
-Show me the code !
-------------------
-
-models.py
-
-.. code-block:: python
-
-    from django import models
-
-    class Project(models.Model):
-
-        name = models.CharField..
-        description = models.CharField..
-
-tables.py
-
-.. code-block:: python
-
-    from horizon_contrib.tables import ModelTable
-    from .models import Project
-
-    class ProjectTable(ModelTable):
-
-        class Meta:
-
-            model_class = Project
-
-*Thats all! This code generate Table with name and description columns which has AJAX inline edit.*
+    If we include horizon urls contrib must be below horizon urls !
 
 For more code see [Documentation]_.
 
