@@ -1,14 +1,12 @@
 
 from __future__ import absolute_import
 
-import os
 import requests
 import logging
 import json
 
 from horizon import messages
 from django.conf import settings
-from horizon_contrib.utils import list_to_dotdict
 
 LOG = logging.getLogger("client.base")
 
@@ -80,7 +78,7 @@ class ClientBase(object):
                 messages.error(_request, msg)
                 if settings.DEBUG:
                     raise Exception(msg)
-            return list_to_dotdict(result)
+            return result
         else:
             if getattr(settings, "DEBUG", False):
                 msg = "url: %s%s, method: %s, status: %s" % (

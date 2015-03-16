@@ -13,7 +13,7 @@ from horizon.tables.base import DataTableMetaclass, DataTableOptions
 from horizon_contrib.common.content_type import get_class
 from django.db import models
 
-from .filters import filter_m2m
+from . import filters
 from .actions import UpdateColumnAction
 
 
@@ -40,7 +40,7 @@ class ModelTableOptions(DataTableOptions):
 
         Array for ordering default is ('-id')
 
-        .. attribute:: extra_columns is default to False
+        .. attribute:: extra_columns is default to True
 
         This means if we specify some columns no extra
         columns will be generated
@@ -57,7 +57,7 @@ class ModelTableOptions(DataTableOptions):
         super(ModelTableOptions, self).__init__(options)
         self.model_class = getattr(options, 'model_class', None)
         self.order_by = getattr(options, 'order_by', ("-id"))
-        self.extra_columns = getattr(options, "extra_columns", False)
+        self.extra_columns = getattr(options, "extra_columns", True)
         self.ajax_update = getattr(options, "ajax_update", True)
         self.update_action = getattr(
             options, "update_action", UpdateColumnAction)
@@ -185,7 +185,7 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
                         column_kwargs["update_action"] = \
                             self._meta.update_action
                     if name in many:
-                        column_kwargs["filters"] = filter_m2m,
+                        column_kwargs["filters"] = filters.filter_m2m,
                     column = tables.Column(name, **column_kwargs)
                     column.table = self
                     columns[name] = column
@@ -201,6 +201,43 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
             data=data,
             needs_form_wrapper=needs_form_wrapper,
             **kwargs)
+
+    @property
+    def filtered_data(self):
+        # This function should be using django.utils.functional.cached_property
+        # decorator, but unfortunately due to bug in Django
+        # https://code.djangoproject.com/ticket/19872 it would make it fail
+        # when being mocked by mox in tests.
+        if not hasattr(self, '_filtered_data'):
+            self._filtered_data = self.data
+            if self._meta.filter and self._meta._filter_action:
+                action = self._meta._filter_action
+                filter_string = self.get_filter_string()
+                request_method = self.request.method
+                needs_preloading = (not filter_string
+                                    and request_method == 'GET'
+                                    and action.needs_preloading)
+                valid_method = (request_method == action.method)
+                if valid_method or needs_preloading:
+                    filter_field = self.get_filter_field()
+                    if self._meta.mixed_data_type:
+                        self._filtered_data = action.data_type_filter(self,
+                                                                self.data,
+                                                                filter_string)
+                    elif not action.is_api_filter(filter_field):
+                        self._filtered_data = action.filter(self,
+                                                            self.data,
+                                                            filter_string)
+        items = []
+        for datum in self._filtered_data:
+            # iterate over model fields and apply some filters
+            for key, val in six.iteritems(datum):
+                if isinstance(val, list):
+                    datum[key] = filters.join_list(val)
+            # create our object
+            model = self._model_class(**datum)
+            items.append(model)
+        return items
 
     @property
     def _model_class(self):

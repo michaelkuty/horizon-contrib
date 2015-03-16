@@ -1,5 +1,6 @@
 
 from datetime import datetime
+
 from django.utils.safestring import SafeString
 
 
@@ -21,6 +22,15 @@ def join_list_with_comma(value):
 
 def join_list_with_newline(value):
     return SafeString('<br />'.join(value))
+
+
+def join_list(value):
+
+    if isinstance(value, list):
+        for item in value:
+            if isinstance(item, dict):
+                return value
+        return join_list_with_newline(value)
 
 
 def status_icon(value):
