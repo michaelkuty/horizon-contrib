@@ -71,6 +71,11 @@ urls.py
         url(r'^model/(?P<cls_name>[\w\.\-]+)/index/$', GenericIndexView.as_view(), name='index'),
     )
 
-.. warning::
+.. note::
 
     Maybe we cant't see here how we propagate model_class into table. It's provided as cls_name in kwargs as we see in urls.py
+
+
+.. warning::
+
+	For these purpose must be ``django.contrib.contenttypes`` in ``INSTALLED_APPS``.

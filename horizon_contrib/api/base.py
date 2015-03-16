@@ -1,166 +1,81 @@
 
-import requests 
-import json
+from __future__ import absolute_import
+
+import os
+import requests
 import logging
+import json
+import decimal
+
 from horizon import messages
 from django.conf import settings
 
-LOG = logging.getLogger(__name__)
+from roboticeclient.common.django import DjangoClient
+from roboticeclient.utils.dotdict import list_to_dotdict
 
-class Req(object):
+from roboticeclient.exceptions import Unauthorized, BadRequest, ClientException
+
+LOG = logging.getLogger("client.base")
+
+TOKEN_FORMAT = "  Token {0}"
+
+
+class ClientBase(object):
+
+    """Base Client Object with main method ``request``
     """
-    """
 
-    def __init__(self, *args, **kwargs):
-        super(Req, self).__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super(ClientBase, self).__init__(**kwargs)
 
-    @staticmethod
-    def make_request(path, method="GET", params={}, request=None, verify=True, token=None):
-        """small util method for simplify create request with handled exceptions
-        and debug output
+        self.set_api()
 
-        .. attribute:: path
+    def request(self, request, path, method="GET", params={}):
+        headers = {}
 
-            Required.
-
-        .. attribute:: method
-
-            The HTTP method for this action. Defaults to ``GET``. Other methods
-            may or may not succeed currently.
-
-        .. attribute:: params
-
-            Default to be an empty dictionary (``{}``)
-
-        .. attribute:: request
-
-            Django request object. Provides django messages.
-            Useful in debug. 
-
-        """
+        _request = request
+        self.set_api()
+        LOG.debug("%s - %s%s - %s" % (method, self.api, path, params))
 
         if method == "GET":
-            response = requests.get(path, verify=verify)
+            request = requests.get('%s%s' % (self.api, path), headers=headers)
+        elif method == "POST":
+            headers["Content-Type"] = "application/json"
+            request = requests.post(
+                '%s%s' % (self.api, path), data=json.dumps(params), headers=headers)
+        elif method == "PUT":
+            headers["Content-Type"] = "application/json"
+            request = requests.put(
+                '%s%s' % (self.api, path), data=json.dumps(params), headers=headers)
+        elif method == "DELETE":
+            request = requests.delete(
+                '%s%s' % (self.api, path), data=json.dumps(params), headers=headers)
 
-        elif method in ["POST", "PUT", "DELETE"]:
-            headers = {"Content-Type": "application/json" }
-            if token:
-                headers = {"Content-Type": "application/json",
-                            "PRIVATE-TOKEN": token }
-                
-            req = requests.Request(method, path, data=json.dumps(params),headers=headers).prepare()
-            response = requests.Session().send(req, verify=verify)
-            
-        if request:
-            messages.debug(request, "%s - %s - %s - %s - %s" % (method, path, params, response.status_code, str(response.text)))
+        if request.status_code in (200, 201):
+            result = request.json()
+            if "error" in result:
+                msg = result.get("error")
+                # populate exception
+                messages.error(_request, msg)
+                if settings.DEBUG:
+                    raise Exception(msg)
+            else:
+                converted_dict = list_to_dotdict(result)
+                return converted_dict
+            return result
         else:
-            LOG.debug(request, "%s - %s - %s - %s - %s" % (method, path, params, response.status_code, str(response.text)))
-        
-        try:
-            response = response.json()
-        except Exception, e:
+            if getattr(settings, "DEBUG", False):
+                msg = "url: %s%s, method: %s, status: %s" % (
+                    self.api, path, method, request.status_code)
+            else:
+                msg = "Unexpected exception."
+            if request.status_code == 401:
+                raise Unauthorized
+            if request.status_code == 400:
+                raise BadRequest
+            messages.error(_request, msg)
+            raise ClientException("Unhandled response status %s" % request.status_code)
 
-            """delete ok"""
-            if response.status_code == 204:
-                return True
-
-            if request:
-                """handle errors"""
-                messages.error(request, "%s - %s - %s - %s - %s" % (method, path, params, response.status_code, str(response.text)))
-                return {}
-            return { 'status_code': response.status_code, 'text': response.text }
-        return response
-
-class BaseClient(object):
-    """small util class for easy api manipulate
-
-    .. attribute:: host
-
-        Required.
-
-    .. attribute:: port
-
-        Required.
-
-    .. attribute:: private_token
-
-        Optional.
-
-    .. attribute:: private_token_name
-
-        Optional. Default is private_token
-
-    .. attribute:: api_prefix
-
-        Default to be a string (``/api``)
-
-    .. attribute:: protocol
-
-        Optional.
-
-    .. attribute:: verify
-
-        Default True
-        Optional. http://docs.python-requests.org/en/latest/user/advanced/
-
-    """
-
-    host = None
-    port = None
-    protocol = "HTTP"
-    api_prefix = "/api"
-    verify = True
-    private_token = None
-    private_token_name = "private_token"
-    
-    req = Req()
-
-    @property
-    def _port(self):
-        if self.port:
-            return ":%s"% self.port
-        return ""
-
-    @property
-    def api(self):
-        return  '{0}://{1}{2}{3}'.format(self.protocol.lower(),
-                                            self.host,
-                                            self._port,
-                                            self.api_prefix)
-
-    def request(self, path, method="GET", data={}, request=None, *args, **kwargs):
-        """wrapper for request with handled exceptions
-        and debug output
-
-        .. attribute:: path
-
-            Required.
-
-        .. attribute:: method
-
-            The HTTP method for this action. Defaults to ``GET``. Other methods
-            may or may not succeed currently.
-
-        .. attribute:: params
-
-            Default to be an empty dictionary (``{}``)
-
-        .. attribute:: request
-
-            Django request object. Provides django messages.
-            Useful in debug. 
-
-        """
-        request = getattr(kwargs, "request", None)
-
-        if self.private_token:
-            data[self.private_token_name] = self.private_token
-
-        if not path:
-            path = kwargs.get("path", "")
-        _url = "{0}{1}".format(self.api, path)
-
-        return self.req.make_request(path=_url,method=method, params=data, request=request, verify=self.verify, token=self.private_token)
-
-    def __init__(self, *args, **kwargs):
-        super(BaseClient, self).__init__(*args, **kwargs)
+    def set_api(self):
+        self.api = '%s://%s:%s%s' % (getattr(self, "protocol", "http"), getattr(
+            self, "host", "127.0.0.1"), getattr(self, "port"), getattr(self, "api_prefix", "/api"))

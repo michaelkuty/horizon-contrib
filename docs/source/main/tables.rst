@@ -88,8 +88,14 @@ Custom columns
 
     In the default state if we specified one column no other columns will be generated for this purpose set ``extra_columns = True``
 
-Custom queryset
----------------
+Load Data into Table
+--------------------
+
+.. note::
+
+    This is main change against Horizon, but old way is still supported and it's only about overriding ``get_data`` on the DataTable View.
+
+With Django model simply do this
 
 .. code-block:: python
 
@@ -97,7 +103,6 @@ Custom queryset
 
         def get_table_data(self):
             return self._model_class.objects.all().order_by("status__id")
-
 
 PaginatedTable
 --------------

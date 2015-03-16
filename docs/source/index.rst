@@ -27,6 +27,8 @@ Contents:
 
    main/tutorial
    main/tables
+   main/api
+   main/generic
    main/forms
    main/actions
    main/filters

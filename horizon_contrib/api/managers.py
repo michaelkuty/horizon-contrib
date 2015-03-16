@@ -1,7 +1,9 @@
 # -*- coding: UTF-8 -*-
 
+from .base import ClientBase
 
-class Manager(object):
+
+class Manager(ClientBase):
 
     """base manager class which provide consistent interface
     for working with API
@@ -13,11 +15,8 @@ class Manager(object):
     def all(self, *args, **kwargs):
         return []
 
-    def order_by(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def filter(self, *args, **kwargs):
-        raise NotImplementedError
+    def get(self, *args, **kwargs):
+        return NotImplementedError
 
     def create(self, *args, **kwargs):
         raise NotImplementedError
@@ -26,4 +25,11 @@ class Manager(object):
         raise NotImplementedError
 
     def delete(self, *args, **kwargs):
+        raise NotImplementedError
+
+    # common stuff
+    def order_by(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def filter(self, *args, **kwargs):
         raise NotImplementedError

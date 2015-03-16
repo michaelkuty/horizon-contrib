@@ -157,7 +157,8 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
             needs_form_wrapper=needs_form_wrapper,
             **kwargs)
 
-        self.model_class = kwargs.pop('cls_name', None)
+        if 'cls_name' in kwargs:
+            self.model_class = kwargs.pop('cls_name', None)
 
         if not hasattr(self, "model_class") and model_class:
             self.model_class = model_class
@@ -209,10 +210,10 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
 
         if isinstance(mcs, six.string_types) and mcs:
             try:
-                self.model_class = get_class(mcs)
+                mcs = get_class(mcs)
             except Exception, e:
                 raise e
-        return self.model_class
+        return mcs
 
     def get_table_data(self):
         """generic implementation
