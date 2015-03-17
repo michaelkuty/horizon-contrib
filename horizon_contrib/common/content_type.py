@@ -64,11 +64,8 @@ def _is_contenttypes_enabled():
 
 
 def get_class(name):
-    """this method try to find model fron CT or our registry
+    """this method return model class from CT or our registry
     all generic features depends on this method
-
-    for this time only recall get_class_from_ct because our registiry
-    does not exists
     """
     cls = None
     # if CT enabled search in
