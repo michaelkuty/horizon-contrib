@@ -13,4 +13,10 @@ class ContribDashboard(horizon.Dashboard):
 
     nav = False
 
+    def get_absolute_url(self):
+        # TODO: we haven't index
+        # maybe search some model and returns his index
+        return '/'
+
+
 horizon.register(ContribDashboard)
