@@ -80,6 +80,9 @@ def get_class(name):
 If you want fix this log message set ``WITHOUT_CT`` in you settings.py\
 you have enabled CT fw but DATABASES = {} is ImproperlyConfigured
                 """)
-        return cls
-    # in our registry
-    return get_model(name)
+            # try to find in our registry
+            cls = get_model(name)
+    else:
+        # in our registry
+        cls = get_model(name)
+    return cls
