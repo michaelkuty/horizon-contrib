@@ -10,7 +10,7 @@ class GenericTable(tables.ModelTable):
     def get_object_id(self, datum):
         id = getattr(datum, 'id', None)
         if not id and isinstance(datum, dict):
-            id = datum.get('id', self.get_object_display())
+            id = datum.get('id', self.get_object_display(datum))
         return id
 
     class Meta:
