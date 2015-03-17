@@ -24,8 +24,8 @@ Features
 - With Django and Conent Types
 
     - Views - PaginatedIndex, Create, Update, Delete in Angular modal's
-    - Tables with inline-ajax update => 
-    - Graphs and statistics
+    - Tables with inline-ajax update
+    - Modal Forms with autohandled modelforms
 
 no implementation required, all Django stuff is generated automatically like an admin, but in more customizeable form.
 

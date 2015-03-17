@@ -1,9 +1,12 @@
 
+import logging
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
-
+from django.core import exceptions
 from .model_registry import get_model
+
+LOG = logging.getLogger(__name__)
 
 """
 helper for searching Content Type
@@ -67,9 +70,16 @@ def get_class(name):
     for this time only recall get_class_from_ct because our registiry
     does not exists
     """
-
+    cls = None
     # if CT enabled search in
     if _is_contenttypes_enabled():
-        return get_class_from_ct(name)
+        try:
+            cls = get_class_from_ct(name)
+        except exceptions.ImproperlyConfigured:
+            LOG.warning("""
+If you want fix this log message set ``WITHOUT_CT`` in you settings.py\
+you have enabled CT fw but DATABASES = {} is ImproperlyConfigured
+                """)
+        return cls
     # in our registry
     return get_model(name)
