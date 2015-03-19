@@ -40,11 +40,6 @@ class APIModel(models.Model, CRUDMixin):
 
     objects = Manager()
 
-    @property
-    def get_id(self):
-        # shortcut for object id defined as primary_key
-        return getattr(self, self._meta.pk.name, 'id')  
-
     def __repr__(self):
         return str(self.id)
 

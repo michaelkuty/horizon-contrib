@@ -106,8 +106,9 @@ class UpdateAction(tables.LinkAction):
 
     def get_link_url(self, instance):
         model_name = self.table._model_class.__name__
+        obj_id = getattr(instance, instance._meta.pk.name, 'id')
         return urlresolvers.reverse_lazy(
-            self.url, args=[model_name, instance.get_id])
+            self.url, args=[model_name, obj_id])
 
 
 class DeleteAction(tables.DeleteAction):

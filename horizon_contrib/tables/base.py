@@ -204,22 +204,8 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
 
         super(ModelTable, self).filtered_data
 
-        if hasattr(self, '_filtered_data') and self._filtered_data is not None:
-            items = []
-            for datum in self._filtered_data:
-                # iterate over model fields and apply some filters
-                for key, val in six.iteritems(datum):
-                    if isinstance(val, list):
-                        datum[key] = filters.join_list(val)
-                if self._model_class:
-                    # create our object
-                    model = self._model_class(**datum)
-                else:
-                    # create dictionary with dotted notation
-                    model = DictModel(**datum)
+        # here will be bound filters for list etc.
 
-                items.append(model)
-                self._filtered_data = items
         return self._filtered_data
 
     @property

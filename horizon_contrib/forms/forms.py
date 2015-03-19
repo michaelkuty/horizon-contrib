@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 
-import datetime
-from horizon import messages
+
 from django import forms as django_forms
 from django.conf import settings
-from horizon import forms
-from django.forms.extras.widgets import SelectDateWidget
+from django.utils.translation import ugettext_lazy as _
+from horizon import forms, messages
 from horizon_contrib.forms.models import create_or_update_and_get
 
 try:
@@ -34,21 +32,6 @@ class SelfHandlingMixin(object):
     processing logic in its subclasses.
     """
     required_css_class = 'required'
-
-    def api_error(self, message):
-        """Adds an error to the form's error dictionary after validation
-        based on problems reported via the API. This is useful when you
-        wish for API errors to appear as errors on the form rather than
-        using the messages framework.
-        """
-        self._errors[NON_FIELD_ERRORS] = self.error_class([message])
-
-    def set_warning(self, message):
-        """Sets a warning on the form.
-
-        Unlike NON_FIELD_ERRORS, this doesn't fail form validation.
-        """
-        self.warnings = self.error_class([message])
 
     def __init__(self, request, *args, **kwargs):
         self.request = request
@@ -96,7 +79,8 @@ class SelfHandlingModelForm(SelfHandlingMixin, django_forms.ModelForm):
             saved_model = create_or_update_and_get(model, data)
             try:
                 messages.success(
-                    request, u"Model %s byl uložen." % saved_model)
+                    request,
+                    _("Model %s was successfuly saved." % saved_model))
             except Exception, e:
                 raise e
                 # swallowed Exception
