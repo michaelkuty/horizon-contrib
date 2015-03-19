@@ -121,7 +121,8 @@ var HorizonReactDataTable = React.createClass({
     });
  }
 });
-//http://beta.json-generator.com/api/json/get/IFQ9gbC
+
+/* we expect url/json which returns data */
 React.renderComponent(<HorizonReactDataTable url="json"/>,
 document.getElementById('{{ table.slugify_name }}'));
 

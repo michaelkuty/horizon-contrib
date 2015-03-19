@@ -1,7 +1,7 @@
 
-=====================
-API apps (model-less)
-=====================
+===================
+REST API Dashboards
+===================
 
 Therms
 ======
@@ -21,28 +21,17 @@ Minimal
 * View - index view
 * Data - if we haven't model we must load data from remote host
 
-Optional
-
-* Table
-* Forms
-* Actions
-* Templates
+Optional: Table, Actions, Forms, Templates and many more
 
 If we build with horizon contrib we need these components
 
 Minimal
 
 * Model in horizon_contrib world
-* View - index view
+* Panel - horizon panel which provide url path
 * Data - ``Manager`` in horizon_contrib world
 
-Optional
-
-* Table
-* Forms
-* Actions
-* other stuff
-
+Optional: Table, Actions, Forms, Templates and many more
 
 New approach
 ============
@@ -177,12 +166,8 @@ For advance working with managers we simple extends our ``ProjectManager``
 
     We known API base url from ``settings`` and now provide model endpoint. Benefits from this see below.
 
+
 Complex model usual has many to many or querysets of objects
-
-.. code-block:: python
-
-
-For m2m fields we can chaining managers
 
 .. code-block:: python
 
@@ -217,6 +202,28 @@ For m2m fields we can chaining managers
 Horizon world
 =============
 
+Minimal required definition is ``panel.py`` which connect model class with url namespace and menu item.
+
+Panel
+-----
+
+``panel.py``
+
+.. code-block:: python
+
+    from horizon_contrib.panel import ModelPanel
+    from horizon_redmine.dashboard import RedmineDashboard
+
+    class ProjectPanel(ModelPanel):
+        name = "Projects"
+        slug = 'projects'
+        model_class = 'project'
+
+        # react = True enable reactjs table
+
+    RedmineDashboard.register(ProjectPanel)
+
+But usualy we must override many internals.
 
 Table
 -----
@@ -246,6 +253,7 @@ View
 
         table_class = ProjectTable
 
+yes and urls forms actions etc. and still again
 
  View call ``table.get_table_data`` which returns ``model_class.objects.all()`` in default state
 

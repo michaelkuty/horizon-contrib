@@ -71,6 +71,8 @@ Nothing special here. This view is same as ``CreateView``, but tries getting ini
 Modal Tabs
 ----------
 
+You can use standard Horizon Workflows, but for many scenarios we need custom tabs with simply describe.
+
 .. code-block:: python
 
     from horizon_contrib.tabs import ModelFormTab, TableTab

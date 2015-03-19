@@ -23,29 +23,32 @@ Features
 
 - With Django and Conent Types
 
-    - Views - PaginatedIndex, Create, Update, Delete on client side with AngularJS, D3.js, Bootstrap3, ..
+    - Views - PaginatedIndex, Create, Update, Delete in Angular modal's
     - Tables with inline-ajax update
-    - Actions - Filter, Create, Update, Delete
+    - Modal Forms autohandled
 
-no implementation required, all Django stuff is generated automatically like an admin, but in more customizeable form.
+no implementation required, all Django stuff is generated automatically like an admin, but in more customizeable and extendable form.
 
-Model -> Form -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
+Model -> Panel || Model -> Panel -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
 
 - Rest API Dashboards
 
     - APIModel
     - ClientBase - simple implementation which uses ``requests``
 
-and plus all features defined under Django, because if we have model most of things works well without any modification.
+and plus all features defined under Django because if we have model most of things works well without any modification.
 
-Manager -> Model -> Form -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
+Manager -> Model -> Panel || Manager -> Model -> Panel -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
 
 Manager has all responsibilty for get data from remote API. It`s simple object which has similar methods with django model managers. And it's bound to Abstract model.
 
 - Others
 
+    - ReactJS integration - for large tables with thousands rows we have integrated https://github.com/glittershark/reactable as ``ReactTable``
     - tabs, templates (modal login, ...)
     - set of common filters, templatetags
+
+`Examle App <https://github.com/michaelkuty/horizon-sensu-panel>`_
 
 Contents:
 
@@ -53,24 +56,26 @@ Contents:
    :maxdepth: 2
 
    main/tutorial
-   main/tables
-   main/api
    main/generic
+   main/api
+   main/tables
    main/forms
    main/actions
+   main/reactjs
    main/filters
 
 Requires
 --------
 
+* Django
 * Horizon - part of OpenStack Dashboard
 
 Tested with
 -----------
 
-* Horizon Icehouse, Juno, Kilo
-* Django 1.5 .. 1.8
-* Python 2.6 .. 3.4
+* Horizon 2012+ (Icehouse +)
+* Django 1.4 +
+* Python 2.6 +
 
 Installation
 ------------
@@ -96,7 +101,7 @@ Optionaly include ``horizon_contrib.urls`` with ``namespace='horizon_contrib'``.
 
     urlpatterns = patterns('',
         ...
-        url(r'^contrib/', include('horizon_contrib.urls', namespace='horizon_contrib'), ),
+        url(r'^contrib/', include('horizon_contrib.urls', namespace='horizon'), ),
         ...
     )
 
@@ -104,8 +109,8 @@ Optionaly include ``horizon_contrib.urls`` with ``namespace='horizon_contrib'``.
 
     ``namespace`` is important for url ``reverse``
 
-Show me the code !
-------------------
+Django example
+--------------
 
 *Your* models.py
 
@@ -117,28 +122,69 @@ Show me the code !
 
         name = models.CharField..
         description = models.CharField..
+        ...
 
-*New* tables.py
+        class Meta:
+            verbose_name = 'Project'
+
+navigate your browser to ``/contrib/models/project/index`` !
+or ``/contrib/models/project/create``
+
+Horizon example REST-API !
+--------------------------
+
+Your ``models.py``
 
 .. code-block:: python
 
-    from horizon_contrib.tables import ModelTable
-    from .models import Project
+    from horizon_contrib.api import APIModel
+    from horizon_contrib.common import register_model
 
-    class ProjectTable(ModelTable):
+    class Project(APIModel):
+
+        name = models.CharField('id', primary_key=True)  # default primary is id
+        description = models.CharField..
+        ...
+
+        objects = Manager()  # see below
 
         class Meta:
+            verbose_name = 'Project'
+            abstract = True
 
-            model_class = Project
+    register_model(Project)  # supply Django Content Type framework
 
-*Thats all! This code generate Table with name and description columns which has AJAX inline edit.*
+New ``managers.py``
+
+.. code-block:: python
+
+    from horizon_contrib.api import Manager
+
+    class Manager(Manager):
+
+        def all(self, *args, **kwargs):
+            return self.request('/projects')
+
+Finally ``panel.py``
+
+.. code-block:: python
+
+    from horizon_contrib.panel import ModelPanel
+    from horizon_redmine.dashboard import RedmineDashboard
+
+    class ProjectPanel(ModelPanel):
+        name = "Projects"
+        slug = 'projects'
+        model_class = 'project'
+
+    RedmineDashboard.register(ProjectPanel)
+
+navigate your browser to ``/contrib/models/project/index`` ! or ``/contrib/models/project/create``
+
 
 .. warning::
 
     This project depends on Horizon library, but isn't in the requirements because we want install horizon/openstack dashboard as we want !
-
-
-|Donation|_
 
 
 Read more

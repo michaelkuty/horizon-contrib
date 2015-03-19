@@ -27,7 +27,7 @@ Features
     - Tables with inline-ajax update
     - Modal Forms with autohandled modelforms
 
-no implementation required, all Django stuff is generated automatically like an admin, but in more customizeable form.
+no implementation required, all Django stuff is generated automatically like an admin, but in more customizeable and extendable form.
 
 *Required*
 
@@ -61,33 +61,29 @@ Manager has all responsibilty for get data from remote API. It`s simple object w
     - set of common filters, templatetags
 
 See [Documentation]_ !
+`Examle App <https://github.com/michaelkuty/horizon-sensu-panel>`_
 
 Requires
 --------
 
+* Django
 * Horizon - part of OpenStack Dashboard
 
 Tested with
 -----------
 
-* Horizon Icehouse, Juno, Kilo
-* Django 1.5 .. 1.8
-* Python 2.6 .. 3.4
+* Horizon 2012+ (Icehouse +)
+* Django 1.4 +
+* Python 2.6 +
 
 Installation
 ------------
 
-This project depends on Horizon library, but isn't installed automatically !
-
-If you haven't installed Horizon, do something like this in your ``virtualenv``:
-
 .. code-block:: bash
 
-    (env)majklk@horizon:~# pip install horizon-contrib
+    pip install horizon-contrib
 
-    (env)majklk@horizon:~# pip install git+https://github.com/michaelkuty/horizon-contrib.git@develop
-
-or clone and add to ``$PYTHONPATH``.
+    pip install git+https://github.com/michaelkuty/horizon-contrib.git@develop
 
 Configuration
 -------------
@@ -96,11 +92,7 @@ Configuration
 
     INSTALLED_APPS += ('horizon_contrib',)
 
-    url(r'^contrib/', include('horizon_contrib.urls', namespace='horizon'), ),
-
-If used horizon, contrib urls will be included automatically.
-
-Manually include ``horizon_contrib.urls`` with ``namespace='horizon'`` is simple.
+Optionaly include ``horizon_contrib.urls`` with ``namespace='horizon_contrib'``. This is only for generic functionality like a index,create,update,delete views.
 
 .. code-block:: python
 
@@ -114,7 +106,79 @@ Manually include ``horizon_contrib.urls`` with ``namespace='horizon'`` is simple
 
 .. note::
 
-    If we include horizon urls contrib must be below horizon urls !
+    ``namespace`` is important for url ``reverse``
+
+Django example
+--------------
+
+*Your* models.py
+
+.. code-block:: python
+
+    from django import models
+
+    class Project(models.Model):
+
+        name = models.CharField..
+        description = models.CharField..
+        ...
+
+        class Meta:
+            verbose_name = 'Project'
+
+navigate your browser to ``/contrib/models/project/index`` !
+or ``/contrib/models/project/create``
+
+Horizon example REST-API !
+--------------------------
+
+Your ``models.py``
+
+.. code-block:: python
+
+    from horizon_contrib.api import APIModel
+    from horizon_contrib.common import register_model
+
+    class Project(APIModel):
+
+        name = models.CharField('id', primary_key=True)  # default primary is id
+        description = models.CharField..
+        ...
+
+        objects = Manager()  # see below
+
+        class Meta:
+            verbose_name = 'Project'
+            abstract = True
+
+    register_model(Project)  # supply Django Content Type framework
+
+New ``managers.py``
+
+.. code-block:: python
+
+    from horizon_contrib.api import Manager
+
+    class Manager(Manager):
+
+        def all(self, *args, **kwargs):
+            return self.request('/projects')
+
+Finally ``panel.py``
+
+.. code-block:: python
+
+    from horizon_contrib.panel import ModelPanel
+    from horizon_redmine.dashboard import RedmineDashboard
+
+    class ProjectPanel(ModelPanel):
+        name = "Projects"
+        slug = 'projects'
+        model_class = 'project'
+
+    RedmineDashboard.register(ProjectPanel)
+
+navigate your browser to ``/contrib/models/project/index`` ! or ``/contrib/models/project/create``
 
 For more code see [Documentation]_.
 
