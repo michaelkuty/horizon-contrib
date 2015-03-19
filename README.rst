@@ -29,7 +29,13 @@ Features
 
 no implementation required, all Django stuff is generated automatically like an admin, but in more customizeable form.
 
-Model -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
+*Required*
+
+Model -> Panel
+
+*Usual*
+
+Model -> Panel -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
 
 - Rest API Dashboards
 
@@ -38,12 +44,19 @@ Model -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
 
 and plus all features defined under Django because if we have model most of things works well without any modification.
 
-Manager -> Model -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
+*Required*
+
+Model -> Panel
+
+*Usual*
+
+Manager -> Model -> Panel -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
 
 Manager has all responsibilty for get data from remote API. It`s simple object which has similar methods with django model managers. And it's bound to Abstract model.
 
 - Others
 
+    - ReactJS integration - for large tables with thousands rows we have integrated https://github.com/glittershark/reactable as ``ReactTable``
     - tabs, templates (modal login, ...)
     - set of common filters, templatetags
 

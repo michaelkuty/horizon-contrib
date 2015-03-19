@@ -38,15 +38,18 @@ class CRUDMixin(object):
 
 class APIModel(models.Model, CRUDMixin):
 
-    id = models.IntegerField("ID", null=True, blank=True)
-
     objects = Manager()
 
-    def __unicode__(self):
-        return str(self.pk)
+    @property
+    def get_id(self):
+        # shortcut for object id defined as primary_key
+        return getattr(self, self._meta.pk.name, 'id')  
 
     def __repr__(self):
-        return str(self.pk)
+        return str(self.id)
+
+    def __unicode__(self):
+        return str(self.__repr__())
 
     def __init__(self, *args, **kwargs):
         # here we must clean kwargs becase django raise exception

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block page_header %}
+<script src="/static/dashboard/js/react/react.min.js"></script>
+<script src="/static/dashboard/js/react/JSXTransformer.js"></script>
+<script src="/static/dashboard/js/react/reactable.js"></script>
+
+{% include "horizon/common/_page_header.html" with title=title %}
+{% endblock page_header %}
+
+{% block main %}
+{{ table.render }}
+{% endblock %}

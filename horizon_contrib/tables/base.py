@@ -4,7 +4,6 @@ from operator import attrgetter
 import six
 from django.conf import settings
 from django.core.paginator import EmptyPage, Paginator
-from django.db import models
 from django.forms.models import fields_for_model
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext_lazy as _
@@ -150,16 +149,14 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
 
     """
 
-    def __init__(self, request, data=None, model_class=None, needs_form_wrapper=None, **kwargs):
+    def __init__(self, request, data=None, model_class=None,
+                 needs_form_wrapper=None, **kwargs):
 
         super(ModelTable, self).__init__(
             request=request,
             data=data,
             needs_form_wrapper=needs_form_wrapper,
             **kwargs)
-
-        if 'cls_name' in kwargs:
-            self.model_class = kwargs.pop('cls_name', None)
 
         if not hasattr(self, "model_class") and model_class:
             self.model_class = model_class
@@ -170,8 +167,8 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
                 self._model_class,
                 fields=getattr(self._meta, "columns", []))
 
-            columns = self._columns
-            actions = columns.pop("actions", [])
+            actions = self.columns.pop("actions", [])
+            columns = SortedDict()
 
             if not len(columns) > 0 or self._meta.extra_columns:
                 many = [i.name for i in
@@ -194,57 +191,36 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
 
                 if actions:
                     columns["actions"] = actions
-                self._columns.update(columns)
-                self.columns.update(columns)
+
+                self._columns = columns
+                self.columns = columns
                 self._populate_data_cache()
 
-            super(ModelTable, self).__init__(
-                request=request,
-                data=data,
-                needs_form_wrapper=needs_form_wrapper,
-                **kwargs)
+            self._meta.verbose_name = \
+                self._model_class._meta.verbose_name_plural.title()
 
     @property
     def filtered_data(self):
-        # This function should be using django.utils.functional.cached_property
-        # decorator, but unfortunately due to bug in Django
-        # https://code.djangoproject.com/ticket/19872 it would make it fail
-        # when being mocked by mox in tests.
-        if not hasattr(self, '_filtered_data'):
-            self._filtered_data = self.data
-            if self._meta.filter and self._meta._filter_action:
-                action = self._meta._filter_action
-                filter_string = self.get_filter_string()
-                request_method = self.request.method
-                needs_preloading = (not filter_string
-                                    and request_method == 'GET'
-                                    and action.needs_preloading)
-                valid_method = (request_method == action.method)
-                if valid_method or needs_preloading:
-                    filter_field = self.get_filter_field()
-                    if self._meta.mixed_data_type:
-                        self._filtered_data = action.data_type_filter(self,
-                                                                self.data,
-                                                                filter_string)
-                    elif not action.is_api_filter(filter_field):
-                        self._filtered_data = action.filter(self,
-                                                            self.data,
-                                                            filter_string)
-        items = []
-        for datum in self._filtered_data:
-            # iterate over model fields and apply some filters
-            for key, val in six.iteritems(datum):
-                if isinstance(val, list):
-                    datum[key] = filters.join_list(val)
-            if self._model_class:
-                # create our object
-                model = self._model_class(**datum)
-            else:
-                # create dictionary with dotted notation
-                model = DictModel(**datum)
 
-            items.append(model)
-        return items
+        super(ModelTable, self).filtered_data
+
+        if hasattr(self, '_filtered_data') and self._filtered_data is not None:
+            items = []
+            for datum in self._filtered_data:
+                # iterate over model fields and apply some filters
+                for key, val in six.iteritems(datum):
+                    if isinstance(val, list):
+                        datum[key] = filters.join_list(val)
+                if self._model_class:
+                    # create our object
+                    model = self._model_class(**datum)
+                else:
+                    # create dictionary with dotted notation
+                    model = DictModel(**datum)
+
+                items.append(model)
+                self._filtered_data = items
+        return self._filtered_data
 
     @property
     def _model_class(self):
@@ -356,24 +332,24 @@ class PaginationMixin(object):
         return self._paginator
 
     def previous_page_number(self):
-        if not self.get_page is None:
+        if self.get_page is not None:
             return self.get_page - 1
         return None
 
     def next_page_number(self):
-        if not self.get_page is None:
+        if self.get_page is not None:
             return self.get_page + 1
         return None
 
     def has_previous(self):
-        if not self.get_page is None:
+        if self.get_page is not None:
             if self.get_page == 1:
                 return False
             return True
         return False
 
     def has_next(self):
-        if not self.get_page is None:
+        if self.get_page is not None:
             if (self.get_page + 1) > self.paginator.num_pages:
                 return False
             return True
@@ -399,7 +375,7 @@ class PaginatedTable(ModelTable, PaginationMixin):
     def __init__(self, *args, **kwargs):
 
         self._meta.template = \
-                            "horizon_contrib/tables/_paginated_data_table.html"
+            "horizon_contrib/tables/_paginated_data_table.html"
 
         super(PaginatedTable, self).__init__(*args, **kwargs)
 
@@ -407,14 +383,20 @@ class PaginatedTable(ModelTable, PaginationMixin):
             settings, "PAGINATION_COUNT", self.PAGINATION_COUNT)
 
 
-class PaginatedModelTable(ModelTable, PaginationMixin):
+class PaginatedModelTable(PaginatedTable):
+
+    """named paginated table
+    """
+
+
+class ReactTable(ModelTable):
 
     """generic paginated model table
     """
 
     def __init__(self, *args, **kwargs):
 
-        self._meta.template = \
-                            "horizon_contrib/tables/_paginated_data_table.html"
+        super(ReactTable, self).__init__(*args, **kwargs)
 
-        super(PaginatedModelTable, self).__init__(*args, **kwargs)
+        self._meta.template = \
+            "horizon_contrib/tables/_react_data_table.html"

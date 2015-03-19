@@ -3,7 +3,7 @@ from horizon_contrib.tables.actions import (CreateAction, DeleteAction,
                                             FilterAction, UpdateAction,
                                             UpdateColumnAction)
 from horizon_contrib.tables.base import (ModelTable, PaginatedModelTable,
-                                         PaginatedTable)
+                                         PaginatedTable, ReactTable)
 from horizon_contrib.tables.views import IndexView, PaginatedView
 
 CD_ACTIONS = (DeleteAction,CreateAction)

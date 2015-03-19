@@ -1,0 +1,128 @@
+
+{% load i18n %}
+{% with table.needs_form_wrapper as needs_form_wrapper %}
+<div class="table_wrapper">
+  {% if needs_form_wrapper %}<form action="{{ table.get_full_url }}" method="POST">{% csrf_token %}{% endif %}
+  {% with columns=table.get_columns rows=table.get_rows %}
+  {% block table %}
+
+   <thead>
+    {% block table_caption %}
+        <tr class='table_caption'>
+          <th class='table_header' colspan='{{ columns|length }}'>
+            <h3 class='table_title'>{{ table }}</h3>
+            {{ table.render_table_actions }}
+          </th>
+        </tr>
+    {% endblock table_caption %}
+    {% block table_breadcrumb %}
+        {% if table.breadcrumb %}
+          <tr>
+            <td class="breadcrumb_td" colspan="{{ table.get_columns|length }}">
+              {{ table.breadcrumb.render }}
+            </td>
+          </tr>
+        {% endif %}
+    {% endblock table_breadcrumb %}
+    </thead>
+
+  <div id="{{ table.slugify_name }}" class="table table-bordered table-striped datatable {{ table.css_classes }}"></div>
+
+  {% endblock table %}
+  {% endwith %}
+  {% if needs_form_wrapper %}</form>{% endif %}
+</div>
+{% endwith %}
+  
+<script type="text/jsx">
+
+var Table = Reactable.Table;
+var Tr = Reactable.Tr;
+var Td = Reactable.Td;
+
+var HorizonReactDataTable = React.createClass({
+  getInitialState: function(){
+    return {data: []};
+  },  
+  render: function(){
+    return (
+    <Table
+      id="{{ table.slugify_name }}" 
+      className="{% block table_css_classes %}table table-bordered table-striped datatable {{ table.css_classes }}{% endblock %}"
+      sortable={true}
+      data={this.state.data}
+      >
+    {% for row in rows %}
+
+      <Tr{{ row.attr_string|safe }}>
+          {% spaceless %}
+              {% for cell in row %}
+
+                  {% if cell.inline_edit_mod and cell.update_allowed %}
+                     <Td{{ cell.attr_string|safe }}>
+                          <div class="table_cell_wrapper">
+                              <div class="inline-edit-error"> </div>
+                              <div class="inline-edit-form">
+                                  {{ cell.value }}
+                                  {% if cell.column.form_field.label %}
+                                      <label class="inline-edit-label" for="{{ cell.id }}">{{ cell.column.form_field.label }}</label>
+                                  {% endif %}
+                              </div>
+                              <div class="inline-edit-actions">
+                                  <button class="inline-edit-submit btn btn-primary btn-xs pull-right"
+                                       name="action" value="" type="submit">
+                                       <span class="glyphicon glyphicon-ok"></span>
+                                  </button>
+                                  <button class="inline-edit-cancel btn btn-default btn-xs pull-right secondary cancel">
+                                      <span class="glyphicon glyphicon-remove"></span>
+                                  </button>
+                              </div>
+                              <div class="inline-edit-status inline-edit-mod"></div>
+                          </div>
+                      </Td>
+                  {% else %}
+                      {% if cell.inline_edit_available and cell.update_allowed %}
+                          <Td{{ cell.attr_string|safe }}>
+                              <div class="table_cell_wrapper">
+                                  <div class="table_cell_data_wrapper">
+                                      {%if cell.wrap_list %}<ul>{% endif %}{{ cell.value }}{%if cell.wrap_list %}</ul>{% endif %}
+                                  </div>
+                                  <div class="table_cell_action">
+                                      <button class="ajax-inline-edit"><span class="glyphicon glyphicon-pencil"></span></button>
+                                  </div>
+                                  <div class="inline-edit-status"></div>
+                              </div>
+                          </Td>
+                      {% else %}
+                          <Td{{ cell.attr_string|safe }}>{%if cell.wrap_list %}<ul>{% endif %}{{ cell.value }}{%if cell.wrap_list %}</ul>{% endif %}</Td>
+                      {% endif %}
+                  {% endif %}
+
+              {% endfor %}
+          {% endspaceless %}
+          <Td>{{ row.render_row_actions }}</Td>
+      </Tr>
+
+    {% endfor %}
+
+    </Table>
+    )
+  },
+  componentDidMount: function() {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+ }
+});
+//http://beta.json-generator.com/api/json/get/IFQ9gbC
+React.renderComponent(<HorizonReactDataTable url="json"/>,
+document.getElementById('{{ table.slugify_name }}'));
+
+</script>
