@@ -27,10 +27,13 @@ class GenericTable(tables.PaginatedTable):
         must be defined on one of model fields
         """
         if datum:
-            if hasattr(datum._meta, 'pk'):
-                id = getattr(datum, 'id', None)
-            elif hasattr(datum._meta, 'pk'):
-                id = getattr(datum, str(datum._meta.pk.name))
+            if not isinstance(datum, dict):
+                if hasattr(datum._meta, 'pk'):
+                    id = getattr(datum, 'id', None)
+                elif hasattr(datum._meta, 'pk'):
+                    id = getattr(datum, str(datum._meta.pk.name))
+            else:
+                id = datum.get('id')
         return id
 
     def __init__(self, *args, **kwargs):
