@@ -1,5 +1,5 @@
 
-|PypiVersion| |License badge| |Doc badge| |Pypi|
+|PypiVersion| |Doc badge| |Pypi|
 
 ======================
 horizon-django contrib
@@ -25,17 +25,11 @@ Features
 
     - Views - PaginatedIndex, Create, Update, Delete in Angular modal's
     - Tables with inline-ajax update
-    - Modal Forms with autohandled modelforms
+    - Modal Forms autohandled
 
 no implementation required, all Django stuff is generated automatically like an admin, but in more customizeable and extendable form.
 
-*Required*
-
-Model -> Panel
-
-*Usual*
-
-Model -> Panel -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
+Model -> Panel || Model -> Panel -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
 
 - Rest API Dashboards
 
@@ -44,13 +38,7 @@ Model -> Panel -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
 
 and plus all features defined under Django because if we have model most of things works well without any modification.
 
-*Required*
-
-Model -> Panel
-
-*Usual*
-
-Manager -> Model -> Panel -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
+Manager -> Model -> Panel || Manager -> Model -> Panel -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
 
 Manager has all responsibilty for get data from remote API. It`s simple object which has similar methods with django model managers. And it's bound to Abstract model.
 
