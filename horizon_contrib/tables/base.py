@@ -57,8 +57,8 @@ class ModelTableOptions(DataTableOptions):
         super(ModelTableOptions, self).__init__(options)
         self.model_class = getattr(options, 'model_class', None)
         self.order_by = getattr(options, 'order_by', ("-id"))
-        self.extra_columns = getattr(options, "extra_columns", True)
-        self.ajax_update = getattr(options, "ajax_update", True)
+        self.extra_columns = getattr(options, "extra_columns", False)
+        self.ajax_update = getattr(options, "ajax_update", False)
         self.update_action = getattr(
             options, "update_action", UpdateColumnAction)
 
@@ -161,7 +161,7 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
         if not hasattr(self, "model_class") and model_class:
             self.model_class = model_class
 
-        if self._model_class:
+        if self._model_class and self._meta.extra_columns:
             # get fields and makes columns
             fields = fields_for_model(
                 self._model_class,
