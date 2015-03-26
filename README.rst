@@ -15,7 +15,7 @@ Short story
 -----------
 
 Horizon is pretty package for fast creating UI for everything. But is designed for model-less applications like an OpenStack Dashboard.
-If we connect Horizon with typical Django application we must create same pieces of same components and this is realy suck !
+If we connect Horizon with typical Django application we must create same pieces of same components and this is really suck !
 We want more declarative and less imperative code. For this purpose we create this library which compose common stuff in one place.
 
 Features
@@ -26,19 +26,17 @@ Features
     - Views - PaginatedIndex, Create, Update, Delete in Angular modal's
     - Tables with inline-ajax update
     - Modal Forms autohandled
+    - Generic - IndexView with pagination, CRUD actions and AJAX inline-edit.
 
 no implementation required, all Django stuff is generated automatically like an admin, but in more customizeable and extendable form.
-
-Model -> Panel || Model -> Panel -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
 
 - Rest API Dashboards
 
     - APIModel
     - ClientBase - simple implementation which uses ``requests``
+    - Generic - Tables, Views, Actions
 
 and plus all features defined under Django because if we have model most of things works well without any modification.
-
-Manager -> Model -> Panel || Manager -> Model -> Panel -> Table -> bound actions(CRUD with Filter) -> View -> Pagination
 
 Manager has all responsibilty for get data from remote API. It`s simple object which has similar methods with django model managers. And it's bound to Abstract model.
 
@@ -99,26 +97,28 @@ Optionaly include ``horizon_contrib.urls`` with ``namespace='horizon_contrib'``.
 Django example
 --------------
 
-*Your* models.py
+With Django model everythings works well without any code. Only navigate your browser to 
 
-.. code-block:: python
+* ``/contrib/models/project/index``
+* ``/contrib/models/project/create``
+* ``/contrib/models/project/1/update``
 
-    from django import models
+For override behaviour see doc.
 
-    class Project(models.Model):
-
-        name = models.CharField..
-        description = models.CharField..
-        ...
-
-        class Meta:
-            verbose_name = 'Project'
-
-navigate your browser to ``/contrib/models/project/index`` !
-or ``/contrib/models/project/create``
 
 Horizon example REST-API !
 --------------------------
+
+Dashboard structure::
+
+    my_dashboard
+        |-- __init__.py
+        |-- projects
+            |-- __init__.py
+            |-- models.py   # define data structure
+            |-- managers.py # load remote data
+            |-- panel.py    # register namespace
+        |-- dashboard.py
 
 Your ``models.py``
 
@@ -166,7 +166,12 @@ Finally ``panel.py``
 
     RedmineDashboard.register(ProjectPanel)
 
-navigate your browser to ``/contrib/models/project/index`` ! or ``/contrib/models/project/create``
+navigate your browser to 
+
+* ``/contrib/models/project/index``
+* ``/contrib/models/project/create``
+* ``/contrib/models/project/1/update`` 
+
 
 For more code see [Documentation]_.
 

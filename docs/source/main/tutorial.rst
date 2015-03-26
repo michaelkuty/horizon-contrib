@@ -19,7 +19,7 @@ Configuration
 
     INSTALLED_APPS += ('horizon_contrib',)
 
-Optionaly include ``horizon_contrib.urls`` with ``namespace='horizon_contrib'``. This is only for generic functionality like a index,create,update,delete views.
+Optionaly include ``horizon_contrib.urls`` with ``namespace='horizon'``. This is only for generic functionality like a index,create,update,delete views.
 
 .. code-block:: python
 
@@ -62,7 +62,7 @@ Include our urls.
 
     urlpatterns = patterns('',
         ...
-        url(r'^contrib/', include('horizon_contrib.urls', namespace='horizon_contrib'), ),
+        url(r'^contrib/', include('horizon_contrib.urls', namespace='horizon'), ),
         ...
     )
 
@@ -80,6 +80,17 @@ Visit these urls
 
 REST API Dashboards
 -------------------
+
+Dashboard structure::
+
+    my_dashboard
+        |-- __init__.py
+        |-- projects
+            |-- __init__.py
+            |-- managers.py
+            |-- models.py
+            |-- panel.py
+        |-- dashboard.py
 
 Your ``models.py``
 
