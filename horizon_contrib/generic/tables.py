@@ -52,3 +52,4 @@ class GenericTable(tables.PaginatedTable):
         table_actions = tables.TABLE_ACTIONS
         row_actions = tables.ROW_ACTIONS
         extra_columns = True
+        ajax_update = True

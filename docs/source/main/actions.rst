@@ -43,6 +43,12 @@ Simple action based on horizon's ``DeleteAction``. It's ``BatchAction`` for more
     from horizon import tables
     from horizon_contrib.tables import DeleteAction
 
+    class MyTable(tables.DataTable):
+
+        class Meta:
+            table_actions = (DeleteAction,)
+            row_actions = (DeleteAction,)
+
 .. warning::
 
     For this time is not implemented in transaction !
@@ -54,16 +60,16 @@ There is nothing special it's only ``LinkAction`` with implemented ``get_link_ur
 
 .. code-block:: python
 
-    from horizon import tables
-    from horizon_contrib.tables.actions import UpdateAction
-
-    my_column = tables.Columns('my_column', update_action=UpdateAction)
-
+    from horizon_contrib.tables.actions import CreateAction
 
 UpdateAction
 ------------
 
 There is nothing special it's only ``LinkAction`` with implemented ``get_link_url``
+
+.. code-block:: python
+
+    from horizon_contrib.tables.actions import UpdateAction
 
 .. note::
 

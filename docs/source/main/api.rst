@@ -3,9 +3,6 @@
 REST API Dashboards
 ===================
 
-Therms
-======
-
 For example all Horizon Dashboard is model-less without DB directly connected.
 
 For usual app we need index view which provide base filtering some actions like a creating, editing and enything else.
@@ -13,31 +10,68 @@ For usual app we need index view which provide base filtering some actions like 
 In typical application we must define these things
 
 Usual REST app
---------------
+==============
 
 Minimal
+-------
 
 * Model - Table in horizon world
 * View - index view
 * Data - if we haven't model we must load data from remote host
 
-Optional: Table, Actions, Forms, Templates and many more
+Dashboard structure::
+
+    my_dashboard
+        |-- __init__.py
+        |-- projects
+            |-- __init__.py
+            |-- panel.py
+            |-- forms.py
+            |-- tables.py
+            |-- urls.py
+            |-- views.py
+        |-- dashboard.py
+
+Optional: Table, Actions, Forms, Workflows, Templates and many more
 
 If we build with horizon contrib we need these components
 
-Minimal
+Minimal with contrib
+--------------------
 
 * Model in horizon_contrib world
 * Panel - horizon panel which provide url path
 * Data - ``Manager`` in horizon_contrib world
 
-Optional: Table, Actions, Forms, Templates and many more
+Dashboard structure::
+
+    my_dashboard
+        |-- __init__.py
+        |-- projects
+            |-- __init__.py
+            |-- managers.py
+            |-- models.py
+            |-- panel.py
+        |-- dashboard.py
+
+Optional: Full overrides
 
 New approach
 ============
 
 We prefer new way which is different in one aspect. We moved responsibility for load data into Model class. Every object is responsible for his data.
 This means Model has manager and this managers load all related data. In many cases we would like to use another manager methods like a create,delete,update,get etc..
+
+Dashboard structure::
+
+    my_dashboard
+        |-- __init__.py
+        |-- projects
+            |-- __init__.py
+            |-- models.py   # define data structure
+            |-- managers.py # load remote data
+            |-- panel.py    # register namespace
+        |-- dashboard.py
 
 Manager
 -------
@@ -103,6 +137,7 @@ Model
 
     from horizon import forms
     from horizon_contrib.api import models
+    from horizon_contrib.common import register_model
     
     from .managers import ProjectManager
 
@@ -125,9 +160,16 @@ Model
             verbose_name = "Project"
             verbose_name_plural = "Projects"
 
+    register_model(Project)  # supply django Content Types
+
+.. info:
+
+    We have plan for autodiscover and registering models on demand.
 
 Benefits
 ^^^^^^^^
+
+One of benefits is unification and consistency of yours APIs across all your apps.
 
 .. code-block:: python
 
