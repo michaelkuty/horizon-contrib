@@ -1,4 +1,5 @@
 
+
 class dotdict(dict):
 
     """ Dictionary with dot access """
@@ -25,3 +26,14 @@ def list_to_dotdict(array):
         return result
 
     return array
+
+
+def to_dotdict(data):
+    """return dotdict object or list
+    """
+
+    if isinstance(data, dict):
+
+        return dotdict(data)
+    elif isinstance(data, list):
+        return list_to_dotdict(data)

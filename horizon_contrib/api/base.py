@@ -1,12 +1,13 @@
 
 from __future__ import absolute_import
 
-import requests
-import logging
 import json
+import logging
 
-from horizon import messages
+import requests
 from django.conf import settings
+from horizon import messages
+from horizon_contrib.utils import to_dotdict
 
 LOG = logging.getLogger("client.base")
 
@@ -48,7 +49,6 @@ class ClientBase(object):
 
         If is provided, additional messages will be pushed.
 
-
         """
         headers = {}
 
@@ -78,7 +78,7 @@ class ClientBase(object):
                 messages.error(_request, msg)
                 if settings.DEBUG:
                     raise Exception(msg)
-            return result
+            return to_dotdict(result)
         else:
             if getattr(settings, "DEBUG", False):
                 msg = "url: %s%s, method: %s, status: %s" % (
@@ -89,6 +89,8 @@ class ClientBase(object):
                 raise Unauthorized
             if request.status_code == 400:
                 raise BadRequest
+            if request.status_code == 500:
+                raise Exception(request.body)
             messages.error(_request, msg)
             raise ClientException("Unhandled response status %s" % request.status_code)
 
