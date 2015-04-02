@@ -1,8 +1,11 @@
 
+from __future__ import unicode_literals
+
 import copy
 
 import six
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from horizon_contrib.api.managers import Manager
 
 
@@ -36,15 +39,13 @@ class CRUDMixin(object):
             self.objects.create(*args, **kwargs)
 
 
+@python_2_unicode_compatible
 class APIModel(models.Model, CRUDMixin):
 
     objects = Manager()
 
-    def __repr__(self):
+    def __str__(self):
         return str(self.id)
-
-    def __unicode__(self):
-        return str(self.__repr__())
 
     def __init__(self, *args, **kwargs):
         # here we must clean kwargs becase django raise exception

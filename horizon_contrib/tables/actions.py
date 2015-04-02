@@ -105,8 +105,9 @@ class UpdateAction(tables.LinkAction):
     classes = ("ajax-modal", "btn-edit")
 
     def get_link_url(self, instance):
-        model_name = self.table._model_class.__name__
-        obj_id = getattr(instance, instance._meta.pk.name, 'id')
+        model_cls = self.table._model_class
+        model_name = model_cls.__name__
+        obj_id = getattr(instance, model_cls._meta.pk.name, 'id')
         return urlresolvers.reverse_lazy(
             self.url, args=[model_name, obj_id])
 
