@@ -78,7 +78,9 @@ Configuration
 
     INSTALLED_APPS += ('horizon_contrib',)
 
-Optionaly include ``horizon_contrib.urls`` with ``namespace='horizon_contrib'``. This is only for generic functionality like a index,create,update,delete views.
+Next configuration depends on your scenario
+
+For usually Django application we must include ``horizon_contrib.urls`` or include ``horizon.urls``. If we include horizon's urls Contrib urls will be mapped as Horizon dashboard. 
 
 .. code-block:: python
 
@@ -86,13 +88,11 @@ Optionaly include ``horizon_contrib.urls`` with ``namespace='horizon_contrib'``.
 
     urlpatterns = patterns('',
         ...
-        url(r'^contrib/', include('horizon_contrib.urls', namespace='horizon'), ),
+        url(r'^contrib/', include('horizon_contrib.urls'), ),
         ...
+        # or
+        url(r'^horizon/', include('horizon.urls'), ),
     )
-
-.. note::
-
-    ``namespace`` is important for url ``reverse``
 
 Django example
 --------------
