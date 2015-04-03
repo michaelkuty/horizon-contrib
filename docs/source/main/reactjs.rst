@@ -30,6 +30,25 @@ For example our index ``contrib/models/<my_class>/index/`` and append ``/react``
 Usage
 -----
 
+.. code-block:: bash
+
+    pip install xstatic-react
+
+Add to ``settings.py``
+
+.. code-block:: python
+
+    import xstatic.pkg.react
+
+    STATICFILES_DIRS = [
+        ('lib', xstatic.main.XStatic(xstatic.pkg.react).base_dir),
+
+    ]
+
+* ``/contrib/models/project/react`` ..
+
+In the Panel
+
 .. code-block:: python
 
     from horizon_contrib.panel import ModelPanel
@@ -44,7 +63,7 @@ Usage
 
     RedmineDashboard.register(ProjectPanel)
 
-Custom table
+As table
 
 .. code-block:: python
 
