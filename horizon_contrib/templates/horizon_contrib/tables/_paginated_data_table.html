@@ -3,24 +3,28 @@
 
 {% load i18n %}
 
-{% block table_caption %}
-    <tr class='table_caption'>
-      <th class='table_header' colspan='{{ columns|length }}'>
-        <h3 class='table_title'>{{ table }}</h3>
-        {{ table.render_table_actions }}
-        {% if table.pagination and table.position == "both" or table.position == "top" %}
-          <div class="pull-right">
-            {% include "horizon_contrib/tables/pagination.html" %}
-          </div>
-        {% endif %}
-      </th>
-    </tr>
-{% endblock table_caption %}
-  
+{% comment %}
+{% if table.pagination and table.position != 'bottom' %}
+  {% block table_caption %}
+  {{ table.position }}
+      <tr class='table_caption'>
+        <th class='table_header' colspan='{{ columns|length }}'>
+          <h3 class='table_title'>{{ table }}</h3>
+          {{ table.render_table_actions }}
+          {% if table.pagination and table.position == "both" or table.position == "top" %}
+            <div class="pull-right">
+              {% include "horizon_contrib/tables/pagination.html" %}
+            </div>
+          {% endif %}
+        </th>
+      </tr>
+  {% endblock table_caption %}
+{% endif %}
+{% endcomment %}
+
 {% block table_footer %}
   {% if table.footer %}
   <tfoot>
-<tfoot>
     {% if table.pagination and table.position == "both" or table.position == "bottom" %}
       <tr>
         <td colspan="{{ table.get_columns|length }}">
@@ -61,8 +65,6 @@
         </td>
       </tr>
     {% endif %}
-
-  </tfoot>
   </tfoot>
   {% endif %}
 {% endblock table_footer %}
