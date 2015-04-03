@@ -3,9 +3,9 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block page_header %}
-<script src="/static/dashboard/js/react/react.min.js"></script>
-<script src="/static/dashboard/js/react/JSXTransformer.js"></script>
-<script src="/static/dashboard/js/react/reactable.js"></script>
+	<script src="{{ STATIC_URL }}lib/react.min.js"></script>
+<script src="{{ STATIC_URL }}lib/JSXtransformer.js"></script>
+<script src="{{ STATIC_URL }}lib/reactable.js"></script>
 
 {% include "horizon/common/_page_header.html" with title=title %}
 {% endblock page_header %}

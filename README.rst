@@ -172,6 +172,28 @@ navigate your browser to
 * ``/contrib/models/project/create``
 * ``/contrib/models/project/1/update`` 
 
+For React SortTable
+
+.. code-block:: bash
+
+    pip install xstatic-react
+
+Add to ``settings.py``
+
+.. code-block:: python
+
+    import xstatic.pkg.react
+
+    STATICFILES_DIRS = [
+        ('lib', xstatic.main.XStatic(xstatic.pkg.react).base_dir),
+
+    ]
+
+* ``/contrib/models/project/react`` ..
+
+.. code-block:: python
+
+    from horizon_contrib.tables import ReactTable
 
 For more code see [Documentation]_.
 
