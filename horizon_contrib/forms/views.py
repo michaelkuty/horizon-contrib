@@ -50,11 +50,11 @@ class ContextMixin(object):
         return getattr(self, 'name', self.__class__.__name__)
 
     def get_form_id(self):
-        model_name = self.model._meta.verbose_name
+        model_name = unicode(self.model._meta.verbose_name)
         return self.get_name() + ' ' + str(model_name)
 
     def get_header(self):
-        model_name = self.model._meta.verbose_name
+        model_name = unicode(self.model._meta.verbose_name)
         return self.get_name() + ' ' + str(model_name)
 
     def get_help_text(self):
