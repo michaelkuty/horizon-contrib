@@ -93,7 +93,7 @@ class CreateAction(tables.LinkAction):
     classes = ("ajax-modal", "btn-edit")
 
     def get_link_url(self, instance=None):
-        model_cls = self.table._model_class.__name__
+        model_cls = self.table._model_class
         model_name = ".".join([model_cls._meta.app_label, model_cls.__name__])
         return urlresolvers.reverse_lazy(self.url, args=[model_name])
 
