@@ -57,10 +57,10 @@ class ContextMixin(object):
         return self.get_name() + ' ' + unicode(model_name)
 
     def get_form_id(self):
-        return b"{0}".format(self.get_label())
+        return b"%s" % self.get_label()
 
     def get_header(self):
-        return b"{0}".format(self.get_label())
+        return b"%s" % self.get_label()
 
     def get_help_text(self):
         return getattr(self, 'help_text', _('Empty space is so boring please\
