@@ -33,7 +33,7 @@ class SelfHandlingMixin(object):
     """
     required_css_class = 'required'
 
-    def __init__(self, request, *args, **kwargs):
+    def __init__(self, request=None, *args, **kwargs):
         self.request = request
         if not hasattr(self, "handle"):
             raise NotImplementedError("%s does not define a handle method."
