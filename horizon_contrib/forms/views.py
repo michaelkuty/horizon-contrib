@@ -1,3 +1,6 @@
+
+from __future__ import unicode_literals
+
 import json
 import os
 
@@ -49,13 +52,15 @@ class ContextMixin(object):
     def get_name(self):
         return getattr(self, 'name', self.__class__.__name__)
 
-    def get_form_id(self):
+    def get_label(self):
         model_name = unicode(self.model._meta.verbose_name)
-        return self.get_name() + ' ' + str(model_name)
+        return self.get_name() + ' ' + unicode(model_name)
+
+    def get_form_id(self):
+        return b"{0}".format(self.get_label())
 
     def get_header(self):
-        model_name = unicode(self.model._meta.verbose_name)
-        return self.get_name() + ' ' + str(model_name)
+        return b"{0}".format(self.get_label())
 
     def get_help_text(self):
         return getattr(self, 'help_text', _('Empty space is so boring please\
