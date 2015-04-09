@@ -51,8 +51,10 @@ class SelfHandlingMixin(object):
             for item in self.helper.layout.fields:
                 if item in ["object_id", "id"]:
                     continue
-                self.helper[item].wrap(Div, css_class="col-lg-6 field-wrapper")
-
+                try:
+                    self.helper[item].wrap(Div, css_class="col-lg-6 field-wrapper")
+                except Exception:
+                    pass
 
 class SelfHandlingForm(SelfHandlingMixin, django_forms.Form):
 
