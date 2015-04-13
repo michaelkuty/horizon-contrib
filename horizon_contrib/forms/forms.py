@@ -33,7 +33,7 @@ class SelfHandlingMixin(object):
     """
     required_css_class = 'required'
 
-    def __init__(self, request, *args, **kwargs):
+    def __init__(self, request=None, *args, **kwargs):
         self.request = request
         if not hasattr(self, "handle"):
             raise NotImplementedError("%s does not define a handle method."
@@ -51,8 +51,10 @@ class SelfHandlingMixin(object):
             for item in self.helper.layout.fields:
                 if item in ["object_id", "id"]:
                     continue
-                self.helper[item].wrap(Div, css_class="col-lg-6 field-wrapper")
-
+                try:
+                    self.helper[item].wrap(Div, css_class="col-lg-6 field-wrapper")
+                except Exception:
+                    pass
 
 class SelfHandlingForm(SelfHandlingMixin, django_forms.Form):
 

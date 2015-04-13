@@ -20,17 +20,15 @@ def get_class_from_ct(name):
     if not name:
         return name
 
-    model_class = None
-    for content_type in ContentType.objects.all():
-        if content_type.model.lower() == name.lower():
-            model_class = content_type.model_class()
-            break
+    parse = name.split('.')
 
-    if model_class is None:
-        raise Exception(
-            _("get class by string: Unknown class: %s " % name.lower()))
+    if len(parse) > 1:
+        return ContentType.objects.get(
+            app_label=parse[0], model__iexact=parse[1]).model_class()
+    else:
+        return ContentType.objects.get(model__iexact=parse[0]).model_class()
 
-    return model_class
+    return None
 
 
 def get_content_type(model_class):
