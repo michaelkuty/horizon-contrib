@@ -173,7 +173,7 @@ class ModelFormMixin(object):
         return model_forms.modelform_factory(model)
 
 
-class CreateView(ModelFormMixin, ContextMixin, ModalFormView):
+class CreateView(ModelFormMixin, ContextMixin, generic.FormView):
 
     name = _('Create')
 
