@@ -19,7 +19,8 @@ def create_or_update_and_get(model_class, data):
         if model_class._meta.pk.name in data:
             model_pk_name = model_class._meta.pk.name
             obj, created = model_class.objects.update_or_create(
-                model_pk_name=data.pop(model_pk_name), defaults=data)
+                **{model_pk_name: data.pop(model_pk_name), 'defaults': data})
+            return obj
     else:
         # note we assume data is already deserialized to a dict
         if model_class._meta.pk.name in data:

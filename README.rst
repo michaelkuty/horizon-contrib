@@ -5,6 +5,9 @@
 horizon-django contrib
 ======================
 
+.. contents::
+   :local:
+
 Library built on top of Django and Horizon(part of OpenStack Dashboard) for building modern web applications.
 
 *With this toolkit is building applications blazingly fast and easy !*
