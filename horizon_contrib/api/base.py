@@ -18,6 +18,11 @@ TOKEN_FORMAT = "  Token {0}"
 class ClientBase(object):
 
     """Base Client Object with main method ``request``
+
+    this is only simple wrapper which is overwritten in 99%
+
+    but provide consitent request method
+
     """
 
     def __init__(self, **kwargs):
