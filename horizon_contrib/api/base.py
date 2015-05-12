@@ -28,7 +28,7 @@ class ClientBase(object):
         except Exception, e:
             LOG.exception(e)
 
-    def request(self, path, method="GET", params={}, request={}):
+    def request(self, path, method="GET", params={}, request={}, headers={}):
         """main method which provide
 
         .. attribute:: path
@@ -51,7 +51,6 @@ class ClientBase(object):
         If is provided, additional messages will be pushed.
 
         """
-        headers = {}
 
         _request = request
         self.set_api()
