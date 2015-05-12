@@ -5,6 +5,7 @@ import json
 import logging
 
 import requests
+from requests import exceptions
 from django.conf import settings
 from horizon import messages
 from horizon_contrib.utils import to_dotdict
@@ -27,7 +28,7 @@ class ClientBase(object):
         except Exception, e:
             LOG.exception(e)
 
-    def request(self, path, method="GET", params={}, request={}):
+    def request(self, path, method="GET", params={}, request={}, headers={}):
         """main method which provide
 
         .. attribute:: path
@@ -50,7 +51,6 @@ class ClientBase(object):
         If is provided, additional messages will be pushed.
 
         """
-        headers = {}
 
         _request = request
         self.set_api()
@@ -86,13 +86,18 @@ class ClientBase(object):
             else:
                 msg = "Unexpected exception."
             if request.status_code == 401:
-                raise Unauthorized
+                raise exceptions.HTTPError('Unautorized 401')
             if request.status_code == 400:
-                raise BadRequest
+                raise exceptions.HTTPError('Unautorized 400')
             if request.status_code == 500:
                 raise Exception(request.body)
-            messages.error(_request, msg)
-            raise ClientException("Unhandled response status %s" % request.status_code)
+            if request.status_code == 204:
+                return request.status_code
+            try:
+                messages.warning(_request, msg)
+            except Exception:
+                pass
+            return Exception(request.status_code)
 
     def set_api(self):
         self.api = '%s://%s:%s%s' % (getattr(self, "protocol", "http"), getattr(
