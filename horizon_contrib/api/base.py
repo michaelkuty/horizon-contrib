@@ -25,13 +25,48 @@ class ClientBase(object):
 
     """
 
-    def __init__(self, **kwargs):
-        super(ClientBase, self).__init__(**kwargs)
+    def do_request(self, path, method="GET", params={}, headers={}):
+        if method == "GET":
+            response = requests.get(path, headers=headers)
+        elif method == "POST":
+            headers["Content-Type"] = "application/json"
+            response = requests.post(
+                path,
+                data=json.dumps(params),
+                headers=headers)
+        elif method == "PUT":
+            headers["Content-Type"] = "application/json"
+            response = requests.put(
+                path,
+                data=json.dumps(params),
+                headers=headers)
+        elif method == "DELETE":
+            response = requests.delete(
+                path,
+                data=json.dumps(params),
+                headers=headers)
+        return response
 
-        try:
-            self.set_api()
-        except Exception, e:
-            LOG.exception(e)
+    def process_response(self, response, request):
+
+        if response.status_code <= 204:
+            result = response.json()
+            if "error" in result:
+                msg = result.get("error")
+                # populate exception
+                messages.error(request, msg)
+                if settings.DEBUG:
+                    LOG.exception(msg)
+            return to_dotdict(result)
+        else:
+            if response.status_code == 401:
+                raise exceptions.HTTPError('Unautorized 401')
+            if response.status_code == 400:
+                raise exceptions.HTTPError('Unautorized 400')
+            if response.status_code == 500:
+                LOG.exception(request.body)
+                raise exceptions.HTTPError('Unexpected exception 500')
+            return Exception(response.status_code)
 
     def request(self, path, method="GET", params={}, request={}, headers={}):
         """main method which provide
@@ -59,51 +94,22 @@ class ClientBase(object):
 
         _request = request
         self.set_api()
+
         LOG.debug("%s - %s%s - %s" % (method, self.api, path, params))
 
-        if method == "GET":
-            request = requests.get('%s%s' % (self.api, path), headers=headers)
-        elif method == "POST":
-            headers["Content-Type"] = "application/json"
-            request = requests.post(
-                '%s%s' % (self.api, path), data=json.dumps(params), headers=headers)
-        elif method == "PUT":
-            headers["Content-Type"] = "application/json"
-            request = requests.put(
-                '%s%s' % (self.api, path), data=json.dumps(params), headers=headers)
-        elif method == "DELETE":
-            request = requests.delete(
-                '%s%s' % (self.api, path), data=json.dumps(params), headers=headers)
+        response = self.do_request(
+            '%s%s' % (self.api, path),
+            method,
+            params,
+            headers)
 
-        if request.status_code in (200, 201):
-            result = request.json()
-            if "error" in result:
-                msg = result.get("error")
-                # populate exception
-                messages.error(_request, msg)
-                if settings.DEBUG:
-                    raise Exception(msg)
-            return to_dotdict(result)
-        else:
-            if getattr(settings, "DEBUG", False):
-                msg = "url: %s%s, method: %s, status: %s" % (
-                    self.api, path, method, request.status_code)
-            else:
-                msg = "Unexpected exception."
-            if request.status_code == 401:
-                raise exceptions.HTTPError('Unautorized 401')
-            if request.status_code == 400:
-                raise exceptions.HTTPError('Unautorized 400')
-            if request.status_code == 500:
-                raise Exception(request.body)
-            if request.status_code == 204:
-                return request.status_code
-            try:
-                messages.warning(_request, msg)
-            except Exception:
-                pass
-            return Exception(request.status_code)
+        result = self.process_response(response, _request)
+
+        return result
 
     def set_api(self):
-        self.api = '%s://%s:%s%s' % (getattr(self, "protocol", "http"), getattr(
-            self, "host", "127.0.0.1"), getattr(self, "port"), getattr(self, "api_prefix", "/api"))
+        self.api = '%s://%s:%s%s' % (
+            getattr(self, "protocol", "http"),
+            getattr(self, "host", "127.0.0.1"),
+            getattr(self, "port"),
+            getattr(self, "api_prefix", "/api"))
