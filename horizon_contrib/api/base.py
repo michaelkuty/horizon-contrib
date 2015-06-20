@@ -62,7 +62,7 @@ class ClientBase(object):
             if response.status_code == 401:
                 raise exceptions.HTTPError('Unautorized 401')
             if response.status_code == 400:
-                raise exceptions.HTTPError('Unautorized 400')
+                raise exceptions.HTTPError('Bad Request 400')
             if response.status_code == 500:
                 LOG.exception(request.body)
                 raise exceptions.HTTPError('Unexpected exception 500')
