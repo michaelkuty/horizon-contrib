@@ -173,7 +173,7 @@ class ModelFormMixin(object):
         return model_forms.modelform_factory(model)
 
 
-class CreateView(ModelFormMixin, ContextMixin, generic.FormView):
+class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
 
     name = _('Create')
 
@@ -198,7 +198,7 @@ class CreateView(ModelFormMixin, ContextMixin, generic.FormView):
             success_url = self.get_success_url()
             response = http.HttpResponseRedirect(success_url)
             response['X-Horizon-Location'] = success_url
-        except Exception, e:
+        except Exception as e:
             raise e
 
         return response
