@@ -8,12 +8,12 @@ from django import http
 from django.conf import settings
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.forms import models as model_forms
-from django.forms.models import model_to_dict
 from django.utils.translation import ugettext_lazy as _
 from django.views import generic
 from horizon import exceptions
 from horizon_contrib.common import content_type as ct
-from horizon_contrib.forms.forms import SelfHandlingModelForm
+from django.forms.models import model_to_dict
+
 
 ADD_TO_FIELD_HEADER = "HTTP_X_HORIZON_ADD_TO_FIELD"
 
@@ -148,7 +148,7 @@ class ModelFormMixin(object):
 
         try:
             obj = self.model.objects.get(id=self.kwargs["id"])
-        except Exception as e:
+        except Exception, e:
             raise e
         return obj
 
@@ -173,8 +173,7 @@ class ModelFormMixin(object):
                 # If this view is operating on a single object, use
                 # the class of that object
                 model = self.object.__class__
-
-        return model_forms.modelform_factory(model, form=SelfHandlingModelForm)
+        return model_forms.modelform_factory(model)
 
 
 class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
@@ -197,22 +196,24 @@ class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
         return super(CreateView, self).get_success_url()
 
     def form_valid(self, form):
-        try:
-            obj = form.save()
-            # maybe will be overwritten
-            success_url = self.get_success_url()
-        except Exception as e:
-            raise e
-        else:
-            # optionaly use model for redirect to detail
+
+        handled = None
+        if hasattr(form, 'handle'):
             try:
-                success_url = obj.get_absolute_url()
+                handled = super(CreateView, self).form_valid(form)
             except:
                 pass
-        response = http.HttpResponseRedirect(success_url)
-        response['X-Horizon-Location'] = success_url
+        elif hasattr(form, 'save'):
 
-        return response
+            try:
+                form.save()
+                success_url = self.get_success_url()
+                response = http.HttpResponseRedirect(success_url)
+                response['X-Horizon-Location'] = success_url
+            except Exception as e:
+                raise e
+
+        return handled or response
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
