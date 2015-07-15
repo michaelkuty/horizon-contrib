@@ -13,14 +13,13 @@ from django.views import generic
 from horizon import exceptions
 from horizon_contrib.common import content_type as ct
 from django.forms.models import model_to_dict
-
+from horizon_contrib.forms.forms import SelfHandlingModelForm
 
 ADD_TO_FIELD_HEADER = "HTTP_X_HORIZON_ADD_TO_FIELD"
 
-# TODO inherit from SelfhandlingForm
-
 
 class ModalFormMixin(object):
+
     def get_template_names(self):
         if self.request.is_ajax():
             if not hasattr(self, "ajax_template_name"):
@@ -68,6 +67,7 @@ class ContextMixin(object):
 
 
 class ModalFormView(ModalFormMixin, generic.FormView):
+
     """The main view class from which all views which handle forms in Horizon
     should inherit. It takes care of all details with processing
     :class:`~horizon.forms.base.SelfHandlingForm` classes, and modal concerns
@@ -119,7 +119,8 @@ class ModalFormView(ModalFormMixin, generic.FormView):
             else:
                 success_url = self.get_success_url()
                 if self.request.META.get("HTTP_REFERER") != self.request.build_absolute_uri():
-                    response = http.HttpResponseRedirect(self.request.META.get('HTTP_REFERER', success_url))
+                    response = http.HttpResponseRedirect(
+                        self.request.META.get('HTTP_REFERER', success_url))
                 else:
                     response = http.HttpResponseRedirect(success_url)
                 # TODO(gabriel): This is not a long-term solution to how
@@ -170,14 +171,13 @@ class ModelFormMixin(object):
                 # If this view is operating on a single object, use
                 # the class of that object
                 model = self.object.__class__
-        return model_forms.modelform_factory(model)
+        return model_forms.modelform_factory(model, form=SelfHandlingModelForm)
 
 
 class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
 
     name = _('Create')
 
-    form_class = None
     template_name = 'horizon_contrib/forms/create.html'
 
     success_url = "/"  # for now
@@ -193,15 +193,33 @@ class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
         return super(CreateView, self).get_success_url()
 
     def form_valid(self, form):
-        try:
-            form.save()
-            success_url = self.get_success_url()
-            response = http.HttpResponseRedirect(success_url)
-            response['X-Horizon-Location'] = success_url
-        except Exception as e:
-            raise e
 
-        return response
+        handled = None
+        if hasattr(form, 'save'):
+
+            try:
+                instance = form.save()
+            except Exception as e:
+                raise e
+            else:
+                try:
+                    success_url = instance.get_absolute_url()
+                except Exception as e:
+                    pass
+
+        elif hasattr(form, 'handle'):
+
+            try:
+                handled = super(CreateView, self).form_valid(form)
+            except:
+                raise e
+            else:
+                success_url = self.get_success_url()
+
+        response = http.HttpResponseRedirect(success_url)
+        response['X-Horizon-Location'] = success_url
+
+        return handled or response
 
     def get_context_data(self, **kwargs):
         context = super(CreateView, self).get_context_data(**kwargs)
