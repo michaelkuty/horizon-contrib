@@ -13,11 +13,9 @@ from django.views import generic
 from horizon import exceptions
 from horizon_contrib.common import content_type as ct
 from django.forms.models import model_to_dict
-
+from horizon_contrib.forms.forms import SelfHandlingModelForm
 
 ADD_TO_FIELD_HEADER = "HTTP_X_HORIZON_ADD_TO_FIELD"
-
-# TODO inherit from SelfhandlingForm
 
 
 class ModalFormMixin(object):
@@ -173,14 +171,13 @@ class ModelFormMixin(object):
                 # If this view is operating on a single object, use
                 # the class of that object
                 model = self.object.__class__
-        return model_forms.modelform_factory(model)
+        return model_forms.modelform_factory(model, form=SelfHandlingModelForm)
 
 
 class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
 
     name = _('Create')
 
-    form_class = None
     template_name = 'horizon_contrib/forms/create.html'
 
     success_url = "/"  # for now
@@ -198,20 +195,29 @@ class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
     def form_valid(self, form):
 
         handled = None
-        if hasattr(form, 'handle'):
+        if hasattr(form, 'save'):
+
+            try:
+                instance = form.save()
+            except Exception as e:
+                raise e
+            else:
+                try:
+                    success_url = instance.get_absolute_url()
+                except Exception as e:
+                    pass
+
+        elif hasattr(form, 'handle'):
+
             try:
                 handled = super(CreateView, self).form_valid(form)
             except:
-                pass
-        elif hasattr(form, 'save'):
-
-            try:
-                form.save()
-                success_url = self.get_success_url()
-                response = http.HttpResponseRedirect(success_url)
-                response['X-Horizon-Location'] = success_url
-            except Exception as e:
                 raise e
+            else:
+                success_url = self.get_success_url()
+
+        response = http.HttpResponseRedirect(success_url)
+        response['X-Horizon-Location'] = success_url
 
         return handled or response
 
