@@ -198,7 +198,15 @@ class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
         handled = None
         success_url = self.get_success_url()
 
-        if hasattr(form, 'save'):
+        # handle is priotiry
+        if hasattr(form, 'handle'):
+
+            try:
+                handled = super(CreateView, self).form_valid(form)
+            except Exception as e:
+                raise e
+
+        elif hasattr(form, 'save'):
 
             try:
                 instance = form.save()
@@ -212,13 +220,6 @@ class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
                         success_url = instance.page.get_absolute_url()
                     except:
                         pass
-
-        elif hasattr(form, 'handle'):
-
-            try:
-                handled = super(CreateView, self).form_valid(form)
-            except:
-                raise e
 
         response = http.HttpResponseRedirect(success_url)
         response['X-Horizon-Location'] = success_url
