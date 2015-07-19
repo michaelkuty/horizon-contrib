@@ -146,7 +146,7 @@ class ModelFormMixin(object):
 
         try:
             obj = self.model.objects.get(id=self.kwargs["id"])
-        except Exception, e:
+        except Exception as e:
             raise e
         return obj
 
@@ -171,7 +171,8 @@ class ModelFormMixin(object):
                 # If this view is operating on a single object, use
                 # the class of that object
                 model = self.object.__class__
-        return model_forms.modelform_factory(model, form=SelfHandlingModelForm)
+        return model_forms.modelform_factory(model, exclude=[],
+                                             form=SelfHandlingModelForm)
 
 
 class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
