@@ -5,7 +5,7 @@ import six
 from django.conf import settings
 from django.core.paginator import EmptyPage, Paginator
 from django.forms.models import fields_for_model
-from django.utils.datastructures import SortedDict
+from collections import OrderedDict
 from django.utils.translation import ugettext_lazy as _
 from horizon import tables
 from horizon.tables import Column
@@ -84,7 +84,7 @@ class ModelTableMetaclass(DataTableMetaclass):
         for base in bases[::-1]:
             if hasattr(base, 'base_columns'):
                 columns = base.base_columns.items() + columns
-        attrs['base_columns'] = SortedDict(columns)
+        attrs['base_columns'] = OrderedDict(columns)
 
         # If the table is in a ResourceBrowser, the column number must meet
         # these limits because of the width of the browser.
@@ -117,14 +117,14 @@ class ModelTableMetaclass(DataTableMetaclass):
             actions_column.classes.append('actions_column')
             columns.append(("actions", actions_column))
         # Store this set of columns internally so we can copy them per-instance
-        attrs['_columns'] = SortedDict(columns)
+        attrs['_columns'] = OrderedDict(columns)
 
         # Gather and register actions for later access since we only want
         # to instantiate them once.
         # (list() call gives deterministic sort order, which sets don't have.)
         actions = list(set(opts.row_actions) | set(opts.table_actions))
         actions.sort(key=attrgetter('name'))
-        actions_dict = SortedDict([(action.name, action())
+        actions_dict = OrderedDict([(action.name, action())
                                    for action in actions])
         attrs['base_actions'] = actions_dict
         if opts._filter_action:
@@ -168,7 +168,7 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
                 fields=getattr(self._meta, "columns", []))
 
             actions = self.columns.pop("actions", [])
-            columns = SortedDict()
+            columns = OrderedDict()
 
             if not len(columns) > 0 or self._meta.extra_columns:
                 many = [i.name for i in
