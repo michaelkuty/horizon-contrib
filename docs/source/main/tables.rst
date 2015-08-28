@@ -158,6 +158,22 @@ and then `views.py`
         table_class = PaginatedModelTable
 
 
+LinkedListColumn
+----------------
+
+Generates links from list of items.
+
+.. code-block:: python
+
+    extensions = LinkedListColumn(
+        'extensions', verbose_name=_("Extensions"),
+        url="horizon:location:hosts:update")
+
+    extensions = LinkedListColumn(
+        ...,
+        url="horizon:location:hosts:update", datum_pk='key', label='item.name')
+
+
 Inheritance of the 'Meta' class
 -------------------------------
 
