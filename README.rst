@@ -36,6 +36,7 @@ no implementation required, all Django stuff is generated automatically like an 
 - Rest API Dashboards
 
     - APIModel
+    - Manager
     - ClientBase - simple implementation which uses ``requests``
     - Generic - Tables, Views, Actions
 
@@ -46,7 +47,7 @@ Manager has all responsibilty for get data from remote API. It`s simple object w
 - Others
 
     - ReactJS integration - for large tables with thousands rows we have integrated https://github.com/glittershark/reactable as ``ReactTable``
-    - tabs, templates (modal login, ...)
+    - LinkedListColumn
     - set of common filters, templatetags
 
 See [Documentation]_ !
@@ -210,6 +211,6 @@ Read more
 
 .. |License badge| image:: http://img.shields.io/badge/license-Apache%202.0-green.svg?style=flat
 .. |Doc badge| image:: https://readthedocs.org/projects/horizon-contrib/badge/?version=stable
-.. |Pypi| image:: https://pypip.in/d/horizon-contrib/badge.svg?style=flat
-.. |PypiVersion| image:: https://pypip.in/version/horizon-contrib/badge.svg?style=flat
+.. |Pypi| image:: https://img.shields.io/pypi/dm/horizon-contrib.svg
+.. |PypiVersion| image:: https://badge.fury.io/py/horizon-contrib.svg
 .. [Documentation] http://horizon-contrib.readthedocs.org

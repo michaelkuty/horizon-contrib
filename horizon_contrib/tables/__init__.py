@@ -6,6 +6,8 @@ from horizon_contrib.tables.base import (ModelTable, PaginatedModelTable,
                                          PaginatedTable, ReactTable)
 from horizon_contrib.tables.views import IndexView, PaginatedView
 
+from horizon_contrib.tables.columns import LinkedListColumn
+
 CD_ACTIONS = (DeleteAction,CreateAction)
 ROW_ACTIONS = (UpdateAction,DeleteAction)
 TABLE_ACTIONS = CD_ACTIONS + (FilterAction,)

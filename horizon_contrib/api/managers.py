@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 
+import operator
 from horizon_contrib.api.base import ClientBase
 
 
@@ -52,6 +53,28 @@ class Manager(ClientBase):
             '/%s' % self.scope,
             'GET',
             request=request)
+
+    def choices(self, request, data=None, pk='id',
+                label='{hostname}', name='Host', empty=True):
+        '''make choices from data or self.list
+
+        data for making choices
+        label is string with item context
+        name is singular name of item
+        if you want create multiple choices use empty=False
+        '''
+        choices = []
+        if not data:
+            data = self.list(request)
+        for item in data:
+            choices.append((item[pk], label.format(**item)))
+        if choices:
+            choices.sort(key=operator.itemgetter(1))
+            if empty:
+                choices.insert(0, ("", "Select %s" % name))
+        else:
+            choices.insert(0, ("", "No %s available" % name))
+        return choices
 
     # other common stuff
 

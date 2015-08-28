@@ -1,12 +1,6 @@
 # -*- coding: UTF-8 -*-
-from django import http, shortcuts
-from django.conf import settings
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.core.urlresolvers import reverse, reverse_lazy
-from django.forms import models as model_forms
 from django.utils.translation import ugettext_lazy as _
-from horizon import forms, tables
-from horizon_contrib.common import content_type as ct
+from horizon import tables
 
 
 class ContextMixin(object):

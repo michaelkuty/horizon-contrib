@@ -5,8 +5,6 @@ import json
 import os
 
 from django import http
-from django.conf import settings
-from django.core.urlresolvers import reverse, reverse_lazy
 from django.forms import models as model_forms
 from django.utils.translation import ugettext_lazy as _
 from django.views import generic
@@ -146,7 +144,7 @@ class ModelFormMixin(object):
 
         try:
             obj = self.model.objects.get(id=self.kwargs["id"])
-        except Exception, e:
+        except Exception as e:
             raise e
         return obj
 
@@ -171,7 +169,8 @@ class ModelFormMixin(object):
                 # If this view is operating on a single object, use
                 # the class of that object
                 model = self.object.__class__
-        return model_forms.modelform_factory(model, form=SelfHandlingModelForm)
+        return model_forms.modelform_factory(model, exclude=[],
+                                             form=SelfHandlingModelForm)
 
 
 class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
@@ -195,7 +194,17 @@ class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
     def form_valid(self, form):
 
         handled = None
-        if hasattr(form, 'save'):
+        success_url = self.get_success_url()
+
+        # handle is priotiry
+        if hasattr(form, 'handle'):
+
+            try:
+                handled = super(CreateView, self).form_valid(form)
+            except Exception as e:
+                raise e
+
+        elif hasattr(form, 'save'):
 
             try:
                 instance = form.save()
@@ -205,16 +214,10 @@ class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
                 try:
                     success_url = instance.get_absolute_url()
                 except Exception as e:
-                    pass
-
-        elif hasattr(form, 'handle'):
-
-            try:
-                handled = super(CreateView, self).form_valid(form)
-            except:
-                raise e
-            else:
-                success_url = self.get_success_url()
+                    try:
+                        success_url = instance.page.get_absolute_url()
+                    except:
+                        pass
 
         response = http.HttpResponseRedirect(success_url)
         response['X-Horizon-Location'] = success_url
