@@ -187,7 +187,7 @@ navigate your browser to ``/contrib/models/project/index`` ! or ``/contrib/model
 
 .. warning::
 
-    This project depends on Horizon library, but isn't in the requirements because we want install horizon/openstack dashboard as we want !
+    This project depends on Horizon library, but isn't in the requirements ! You may use ``leonardo-horizon`` or openstack horizon.
 
 
 Read more
