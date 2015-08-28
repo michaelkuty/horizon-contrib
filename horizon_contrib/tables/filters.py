@@ -44,5 +44,5 @@ def filter_m2m(datum):
     """
     items = []
     for d in datum.all():
-        items.append(d.__unicode__())
+        items.append(str(d))
     return ", ".join(items)

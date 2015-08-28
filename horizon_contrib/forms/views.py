@@ -5,8 +5,6 @@ import json
 import os
 
 from django import http
-from django.conf import settings
-from django.core.urlresolvers import reverse, reverse_lazy
 from django.forms import models as model_forms
 from django.utils.translation import ugettext_lazy as _
 from django.views import generic

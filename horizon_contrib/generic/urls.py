@@ -5,7 +5,6 @@ from horizon_contrib.forms.views import CreateView, UpdateView
 from .views import GenericIndexView, DataView
 
 urlpatterns = patterns('',
-	# forms
     url(r'^models/(?P<cls_name>[\w\.\-]+)/create/$', CreateView.as_view(), name='create'),
     url(r'^models/(?P<cls_name>[\w\.\-]+)/(?P<id>[\w\.\-]+)/update/$', UpdateView.as_view(), name='update'),
     # tables
