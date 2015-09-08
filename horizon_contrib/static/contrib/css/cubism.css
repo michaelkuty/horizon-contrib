@@ -1,0 +1,90 @@
+
+#usage td.sortable.normal_column {
+  padding: 0px;
+}
+
+#usage {
+  width: auto!important;
+}
+
+.axis {
+  margin-left: -8px!important;  
+  margin-right: -8px!important;
+  margin-bottom: -8px!important;
+}
+
+.table th, .table td {
+  line-height: auto!important;
+  padding: 8px;
+}
+
+.axis {
+  font: 10px sans-serif;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.axis text {
+  -webkit-transition: fill-opacity 250ms linear;
+}
+
+.axis path {
+  display: none;
+}
+
+.axis line {
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis.top {
+  background: transparent;
+  /*top: 0px; */
+}
+
+.axis.bottom {
+  background: transparent;
+  bottom: 0px;
+}
+
+.horizon {
+  overflow: hidden;
+  position: relative;
+}
+
+.horizon {
+  border-bottom: solid 0px transparent;
+  border-bottom: solid 0px transparent;
+}
+
+.horizon + .horizon {
+  border-top: none;
+}
+
+.horizon canvas {
+  display: block;
+}
+
+.horizon .title,
+.horizon .value {
+  bottom: 0;
+  line-height: 30px;
+  margin: 0 6px;
+  position: absolute;
+  text-shadow: 0 1px 0 rgba(255,255,255,.5);
+  white-space: nowrap;
+}
+
+.horizon .title {
+  left: 0;
+}
+
+.horizon .value {
+  right: 0;
+}
+
+.line {
+  background: #000;
+  opacity: .9;
+  z-index: 2;
+}
