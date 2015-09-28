@@ -18,9 +18,9 @@ def issue_list(array):
     """
     """
     url = "horizon:common:ukol:detail"
-    ul = u"<ul class=\"list-group\">{0}</ul>"
-    li = u"<li class=\"list-group-item\">{0}</li>"
-    _link = u"<a class=\"ajax-modal\" href=\"{0}\">{1}</a>"
+    ul = "<ul class=\"list-group\">{0}</ul>"
+    li = "<li class=\"list-group-item\">{0}</li>"
+    _link = "<a class=\"ajax-modal\" href=\"{0}\">{1}</a>"
     lis = []
     if is_empty(array):
         return "-"
@@ -34,8 +34,8 @@ def issue_list(array):
 def list(array):
     """
     """
-    ul = u"<ul class=\"list-group\">{0}</ul>"
-    li = u"<li class=\"list-group-item\">{0}</li>"
+    ul = "<ul class=\"list-group\">{0}</ul>"
+    li = "<li class=\"list-group-item\">{0}</li>"
     lis = []
     if is_empty(array):
         return "-"
@@ -53,7 +53,7 @@ def line_list(array):
         for item in array:
             _array.append(item.__unicode__())
         array = _array
-    except Exception, e:
+    except Exception as e:
         pass
     return ", ".join(array)
 
@@ -63,8 +63,8 @@ def form_group(instance, group_fields):
     attribute:: instnace
     attribute:: fields :: ["string"]
     """
-    label = u"<label class=\"control-label\" for=\"{0}\">{0}</label>"
-    input = u"<input class=\"form-control\" id=\"{0}\" type=\"text\" value=\"{1}\">"
+    label = "<label class=\"control-label\" for=\"{0}\">{0}</label>"
+    input = "<input class=\"form-control\" id=\"{0}\" type=\"text\" value=\"{1}\">"
     inputs = []
     
     if instance is None: return ""
@@ -76,9 +76,9 @@ def form_group(instance, group_fields):
         value = getattr(instance, field, "-")
         if not value or len(str(value)) == 0:
             value = "-"
-        inputs.append(u"{0}{1}".format(label.format(field_label), input.format(field_label, value)))
+        inputs.append("{0}{1}".format(label.format(field_label), input.format(field_label, value)))
     
-    return format_html(u"".join(inputs))
+    return format_html("".join(inputs))
 
 @register.filter
 def div_group(instance, group_fields):
@@ -86,8 +86,8 @@ def div_group(instance, group_fields):
     attribute:: instnace
     attribute:: fields :: ["string"]
     """
-    label = u"<div class=\"list-label\" for=\"{0}\">{0}:</div>"
-    input = u"<div class=\"list-value\" id=\"{0}\">&nbsp;{1}</div>"
+    label = "<div class=\"list-label\" for=\"{0}\">{0}:</div>"
+    input = "<div class=\"list-value\" id=\"{0}\">&nbsp;{1}</div>"
     inputs = []
     
     if instance is None: return ""
@@ -99,6 +99,6 @@ def div_group(instance, group_fields):
         value = getattr(instance, field, "-")
         if not value or len(str(value)) == 0:
             value = "-"
-        inputs.append(u"{0}{1}".format(label.format(field_label), input.format(field_label, value)))
+        inputs.append("{0}{1}".format(label.format(field_label), input.format(field_label, value)))
     
-    return format_html(u"".join(inputs))
+    return format_html("".join(inputs))

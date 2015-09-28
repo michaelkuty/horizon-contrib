@@ -72,7 +72,7 @@ class ModelTableMetaclass(DataTableMetaclass):
         # Gather columns; this prevents the column from being an attribute
         # on the DataTable class and avoids naming conflicts.
         columns = []
-        for attr_name, obj in attrs.items():
+        for attr_name, obj in list(attrs.items()):
             if issubclass(type(obj), (opts.column_class, Column)):
                 column_instance = attrs.pop(attr_name)
                 column_instance.name = attr_name
@@ -83,7 +83,7 @@ class ModelTableMetaclass(DataTableMetaclass):
         # Iterate in reverse to preserve final order
         for base in bases[::-1]:
             if hasattr(base, 'base_columns'):
-                columns = base.base_columns.items() + columns
+                columns = list(base.base_columns.items()) + columns
         attrs['base_columns'] = OrderedDict(columns)
 
         # If the table is in a ResourceBrowser, the column number must meet
@@ -174,7 +174,7 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
                 many = [i.name for i in
                         self._model_class._meta.many_to_many]
 
-                for name, field in fields.iteritems():
+                for name, field in fields.items():
                     if name not in columns:
                         column_kwargs = {
                             "verbose_name": getattr(field, "label", name),
@@ -242,7 +242,7 @@ class ModelTable(six.with_metaclass(ModelTableMetaclass, tables.DataTable)):
         if isinstance(mcs, six.string_types) and mcs:
             try:
                 mcs = get_class(mcs)
-            except Exception, e:
+            except Exception as e:
                 raise e
         return mcs
 
@@ -338,7 +338,7 @@ class PaginationMixin(object):
             try:
                 self._paginator = Paginator(
                     self.get_paginator_data(), self.PAGINATION_COUNT)
-            except Exception, e:
+            except Exception as e:
                 raise e
         return self._paginator
 

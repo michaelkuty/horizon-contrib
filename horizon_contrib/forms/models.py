@@ -38,7 +38,7 @@ def create_or_update_and_get(model_class, data):
             instance = model_class()
 
         # update (or finish creating)
-        for key, value in data.items():
+        for key, value in list(data.items()):
             field = model_class._meta.get_field(key)
             if not field:
                 continue

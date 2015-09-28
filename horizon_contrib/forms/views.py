@@ -1,5 +1,5 @@
 
-from __future__ import unicode_literals
+
 
 import json
 import os
@@ -50,8 +50,8 @@ class ContextMixin(object):
         return getattr(self, 'name', self.__class__.__name__)
 
     def get_label(self):
-        model_name = unicode(self.model._meta.verbose_name)
-        return self.get_name() + ' ' + unicode(model_name)
+        model_name = str(self.model._meta.verbose_name)
+        return self.get_name() + ' ' + str(model_name)
 
     def get_form_id(self):
         return b"%s" % self.get_label()
