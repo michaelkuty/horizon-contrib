@@ -3,6 +3,7 @@
 from django.core import urlresolvers
 from django.utils.translation import ugettext_lazy as _
 from horizon import tables
+from django.utils import six
 
 
 class BaseFilterAction(tables.FilterAction):
@@ -33,7 +34,7 @@ class BaseFilterAction(tables.FilterAction):
 
         def comp(obj):
             if isinstance(obj, dict):
-                for key, value in obj.iteritems():
+                for key, value in six.iteritems(obj):
                     if q in str(obj.get(key, "")).lower():
                         return True
             if isinstance(obj, object):
@@ -47,7 +48,7 @@ class BaseFilterAction(tables.FilterAction):
                     pass
             return False
 
-        return filter(comp, data)
+        return list(filter(comp, data))
 
 
 class FilterAction(BaseFilterAction):

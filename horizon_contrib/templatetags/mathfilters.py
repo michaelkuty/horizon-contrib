@@ -2,7 +2,7 @@
 """
 source code https://github.com/dbrgn/django-mathfilters
 """
-from __future__ import print_function, division, absolute_import, unicode_literals
+
 
 import logging
 try:

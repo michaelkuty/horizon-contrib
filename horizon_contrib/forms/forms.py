@@ -10,7 +10,7 @@ try:
     from crispy_forms.helper import FormHelper
     from crispy_forms.layout import Div
     CRISPY = True
-except Exception, e:
+except Exception as e:
     CRISPY = False
 
 
@@ -73,7 +73,7 @@ class SelfHandlingModelForm(SelfHandlingMixin, django_forms.ModelForm):
         model = None
         try:
             model = self.Meta.model
-        except Exception, e:
+        except Exception as e:
             raise e
         if not model:
             raise Exception("Missing model")
@@ -83,11 +83,11 @@ class SelfHandlingModelForm(SelfHandlingMixin, django_forms.ModelForm):
                 messages.success(
                     request,
                     _("Model %s was successfuly saved." % saved_model))
-            except Exception, e:
+            except Exception as e:
                 raise e
                 # swallowed Exception
                 # model has not __unicode__ method
-        except Exception, e:
+        except Exception as e:
             if getattr(settings, "DEBUG", False):
                 messages.error(request, e.message)
                 messages.error(request, data)

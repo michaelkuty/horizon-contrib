@@ -26,7 +26,7 @@ class IndexView(ContextMixin, tables.DataTableView):
         if table:
             try:
                 objects = table.get_table_data()
-            except NotImplementedError, e:
+            except NotImplementedError as e:
                 raise e
             return objects
         else:
@@ -46,7 +46,7 @@ class PaginatedView(IndexView):
             if page:
                 try:
                     objects = table.get_page_data(page=page)
-                except NotImplementedError, e:
+                except NotImplementedError as e:
                     raise e
             else:
                 objects = table.get_page_data()  # defaultne 1
