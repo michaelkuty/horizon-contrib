@@ -96,7 +96,12 @@ class ModalFormView(ModalFormMixin, generic.FormView):
 
     def get_form(self, form_class):
         """Returns an instance of the form to be used in this view."""
-        return form_class(self.request, **self.get_form_kwargs())
+
+        kwargs = self.get_form_kwargs()
+        kwargs.update({
+            'request': self.request,
+        })
+        return form_class(**kwargs)
 
     def form_valid(self, form):
         try:
