@@ -136,8 +136,17 @@ class ModalFormView(ModalFormMixin, generic.FormView):
             # wrong, and we should send back the form as-is.
             return self.form_invalid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super(ModalFormView, self).get_context_data(**kwargs)
+
+        # add extra context for template
+        context['url'] = self.request.build_absolute_uri()
+
+        return context
+
 
 class ModelModalView(ModalFormView):
+
     pass
 
 
