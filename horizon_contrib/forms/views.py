@@ -6,6 +6,7 @@ import os
 from django import http
 from django.forms import models as model_forms
 from django.utils.translation import ugettext_lazy as _
+from django.utils.functional import cached_property
 from django.views import generic
 from horizon import exceptions
 from horizon_contrib.common import content_type as ct
@@ -152,7 +153,7 @@ class ModelModalView(ModalFormView):
 
 class ModelFormMixin(object):
 
-    @property
+    @cached_property
     def object(self):
 
         try:
@@ -161,10 +162,9 @@ class ModelFormMixin(object):
             raise e
         return obj
 
-    @property
+    @cached_property
     def model(self):
         # TODO if not content_type FW find in our registry
-        # TODO cache or memonized
         return ct.get_class(self.kwargs["cls_name"])
 
     def get_form_class(self):
