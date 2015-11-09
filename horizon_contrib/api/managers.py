@@ -16,13 +16,18 @@ class SearchOptionsMixin(object):
 
     def get_query_string(self, search_opts):
         '''returns query string from search options'''
-        return urlencode(search_opts)
+        return urlencode(self.get_search_options(search_opts))
 
     def get_url(self, id=None, search_opts={}):
-        base_url = '/%s' % self.scope if not id else '/{0}/{1}'.format(
-            self.scope, id)
-        return '?'.join([base_url,
-                         self.get_query_string(search_opts)])
+        query = self.get_query_string(search_opts)
+        if not id:
+            base_url = '/%s' % self.scope
+        else:
+            base_url = '/{0}/{1}'.format(self.scope, id)
+        if query:
+            return '?'.join([base_url,
+                             query])
+        return base_url
 
 
 class Manager(ClientBase, SearchOptionsMixin):
@@ -71,7 +76,7 @@ class Manager(ClientBase, SearchOptionsMixin):
 
     def list(self, request=None, search_opts={}):
         return self.request(
-            self.get_url(id, search_opts=search_opts),
+            self.get_url(search_opts=search_opts),
             'GET',
             request=request)
 
