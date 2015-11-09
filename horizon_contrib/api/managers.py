@@ -25,9 +25,11 @@ class SearchOptionsMixin(object):
         else:
             base_url = '/{0}/{1}'.format(self.scope, id)
         if query:
-            return '?'.join([base_url,
-                             query])
-        return base_url
+            url = '?'.join([base_url,
+                            query])
+        else:
+            url = base_url
+        return url if url[-1] == '/' else url + '/'
 
 
 class Manager(ClientBase, SearchOptionsMixin):
