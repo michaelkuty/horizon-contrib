@@ -28,6 +28,9 @@ class ClientBase(object):
     def do_request(self, path, method="GET", params={}, headers={}):
         '''make raw request'''
 
+        if not method == 'GET' and path[-1] != '/':
+            path = path + '/'
+
         if method == "GET":
             response = requests.get(path, headers=headers)
         elif method == "POST":

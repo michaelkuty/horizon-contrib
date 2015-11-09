@@ -21,15 +21,13 @@ class SearchOptionsMixin(object):
     def get_url(self, id=None, search_opts={}):
         query = self.get_query_string(search_opts)
         if not id:
-            base_url = '/%s' % self.scope
+            base_url = '/%s/' % self.scope
         else:
-            base_url = '/{0}/{1}'.format(self.scope, id)
+            base_url = '/{0}/{1}/'.format(self.scope, id)
         if query:
-            url = '?'.join([base_url,
+            return '?'.join([base_url,
                             query])
-        else:
-            url = base_url
-        return url if url[-1] == '/' else url + '/'
+        return base_url
 
 
 class Manager(ClientBase, SearchOptionsMixin):
