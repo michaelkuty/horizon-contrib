@@ -26,6 +26,8 @@ class ClientBase(object):
     """
 
     def do_request(self, path, method="GET", params={}, headers={}):
+        '''make raw request'''
+
         if method == "GET":
             response = requests.get(path, headers=headers)
         elif method == "POST":
@@ -48,6 +50,7 @@ class ClientBase(object):
         return response
 
     def process_response(self, response, request):
+        '''process response and handle statues and exceptions'''
 
         if response.status_code <= 204:
             result = response.json()
@@ -67,6 +70,10 @@ class ClientBase(object):
                 LOG.exception(request.body)
                 raise exceptions.HTTPError('Unexpected exception 500')
             return Exception(response.status_code)
+
+    def process_data(self, result, request):
+        '''process result and returns data'''
+        return result
 
     def request(self, path, method="GET", params={}, request={}, headers={}):
         """main method which provide
@@ -97,15 +104,19 @@ class ClientBase(object):
 
         LOG.debug("%s - %s%s - %s" % (method, self.api, path, params))
 
+        # do request
         response = self.do_request(
             '%s%s' % (self.api, path),
             method,
             params,
             headers)
 
+        # process response
         result = self.process_response(response, _request)
+        # process data
+        data = self.process_data(result, _request)
 
-        return result
+        return data
 
     def set_api(self):
         self.api = '%s://%s:%s%s' % (
