@@ -78,6 +78,22 @@ class ClientBase(object):
         '''process result and returns data'''
         return result
 
+    def process_headers(self, headers, request):
+        '''process headers for example add auth headers'''
+        return headers
+
+    def process_params(self, params, request):
+        '''process params'''
+        return params
+
+    def process_method(self, method, request):
+        '''process method'''
+        return method
+
+    def process_url(self, url, request):
+        '''process url'''
+        return url
+
     def request(self, path, method="GET", params={}, request={}, headers={}):
         """main method which provide
 
@@ -109,10 +125,10 @@ class ClientBase(object):
 
         # do request
         response = self.do_request(
-            '%s%s' % (self.api, path),
-            method,
-            params,
-            headers)
+            self.process_url('%s%s' % (self.api, path), _request),
+            self.process_method(method, _request),
+            self.process_params(params, _request),
+            self.process_headers(headers, _request))
 
         # process response
         result = self.process_response(response, _request)
