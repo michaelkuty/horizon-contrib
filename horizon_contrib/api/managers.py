@@ -2,9 +2,30 @@
 
 import operator
 from horizon_contrib.api.base import ClientBase
+from urllib import urlencode
 
 
-class Manager(ClientBase):
+class SearchOptionsMixin(object):
+
+    '''Encapsulation of search options'''
+
+    def get_search_options(self, opts={}):
+        '''merge search options with defaults'''
+        opts.update(getattr(self, 'search_options', {}))
+        return opts
+
+    def get_query_string(self, search_opts):
+        '''returns query string from search options'''
+        return urlencode(search_opts)
+
+    def get_url(self, id=None, search_opts={}):
+        base_url = '/%s' % self.scope if not id else '/{0}/{1}'.format(
+            self.scope, id)
+        return '?'.join([base_url,
+                         self.get_query_string(search_opts)])
+
+
+class Manager(ClientBase, SearchOptionsMixin):
 
     """base manager class which provide consistent interface
     for working with API
@@ -24,33 +45,33 @@ class Manager(ClientBase):
 
     def get(self, id, request=None):
         return self.request(
-            '/{0}/{1}'.format(self.scope, id),
+            self.get_url(id),
             'GET',
-            request)
+            request=request)
 
     def create(self, data, request=None):
         return self.request(
-            '/{0}/'.format(self.scope),
+            self.get_url(),
             'POST',
-            data,
-            request)
+            params=data,
+            request=request)
 
     def update(self, id, data, request=None):
         return self.request(
-            '/{0}/{1}/'.format(self.scope, id),
+            self.get_url(id),
             'PUT',
-            data,
-            request)
+            params=data,
+            request=request)
 
     def delete(self, id, request=None, *args, **kwargs):
         return self.request(
-            '/{0}/{1}/'.format(self.scope, id),
+            self.get_url(id),
             'DELETE',
-            request)
+            request=request)
 
-    def list(self, request=None):
+    def list(self, request=None, search_opts={}):
         return self.request(
-            '/%s' % self.scope,
+            self.get_url(id, search_opts=search_opts),
             'GET',
             request=request)
 
