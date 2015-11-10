@@ -400,6 +400,44 @@ class PaginatedModelTable(PaginatedTable):
     """
 
 
+class PaginatedApiTable(PaginatedTable):
+    '''simple api pagination table
+
+    set manager attribute like manager = api.hosts
+    '''
+
+    show_all_url = False
+
+    def get_page_data(self, page="1"):
+        """returns data for specific page
+        """
+        self._paginator = self.manager.list(
+            self.request,
+            search_opts={'page': page})
+        return self._paginator
+
+    @property
+    def get_page(self):
+        """returns int page"""
+        return self.request.GET.get('page', "1")
+
+    def previous_page_number(self):
+        if self.has_previous:
+            return int(self.get_page) - 1
+        return None
+
+    def next_page_number(self):
+        if self.has_next:
+            return int(self.get_page) + 1
+        return None
+
+    def has_previous(self):
+        return self._paginator.previous
+
+    def has_next(self):
+        return self._paginator.next
+
+
 class ReactTable(ModelTable):
 
     """generic paginated model table

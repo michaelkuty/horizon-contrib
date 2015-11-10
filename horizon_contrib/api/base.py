@@ -8,7 +8,7 @@ import requests
 from requests import exceptions
 from django.conf import settings
 from horizon import messages
-from horizon_contrib.utils import to_dotdict
+from .response import ListResponse, DictResponse
 
 LOG = logging.getLogger("client.base")
 
@@ -24,6 +24,9 @@ class ClientBase(object):
     but provide consitent request method
 
     """
+
+    list_response_class = ListResponse
+    dict_response_class = DictResponse
 
     def do_request(self, path, method="GET", params={}, headers={}):
         '''make raw request'''
@@ -76,7 +79,13 @@ class ClientBase(object):
 
     def process_data(self, result, request):
         '''process result and returns data'''
-        return result
+
+        if isinstance(result, list):
+            response = self.list_response_class(result)
+        elif isinstance(result, dict):
+            response = self.dict_response_class(result)
+
+        return response
 
     def process_headers(self, headers, request):
         '''process headers for example add auth headers'''
