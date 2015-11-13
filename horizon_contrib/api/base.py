@@ -1,6 +1,4 @@
 
-
-
 import json
 import logging
 
@@ -66,7 +64,7 @@ class ClientBase(object):
                 messages.error(request, msg)
                 if settings.DEBUG:
                     LOG.exception(msg)
-            return to_dotdict(result)
+            return result
         else:
             if response.status_code == 401:
                 raise exceptions.HTTPError('Unautorized 401')
@@ -103,6 +101,10 @@ class ClientBase(object):
         '''process url'''
         return url
 
+    def process_exception(self, exception, request, response):
+        '''process exception'''
+        raise exception
+
     def request(self, path, method="GET", params={}, request={}, headers={}):
         """main method which provide
 
@@ -132,19 +134,22 @@ class ClientBase(object):
 
         LOG.debug("%s - %s%s - %s" % (method, self.api, path, params))
 
-        # do request
-        response = self.do_request(
-            self.process_url('%s%s' % (self.api, path), _request),
-            self.process_method(method, _request),
-            self.process_params(params, _request),
-            self.process_headers(headers, _request))
+        try:
+            # do request
+            response = self.do_request(
+                self.process_url('%s%s' % (self.api, path), _request),
+                self.process_method(method, _request),
+                self.process_params(params, _request),
+                self.process_headers(headers, _request))
 
-        # process response
-        result = self.process_response(response, _request)
-        # process data
-        data = self.process_data(result, _request)
-
-        return data
+            # process response
+            result = self.process_response(response, _request)
+            # process data
+            data = self.process_data(result, _request)
+        except Exception as e:
+            self.process_exception(e, _request, response)
+        else:
+            return data
 
     def set_api(self):
         self.api = '%s://%s:%s%s' % (

@@ -1,8 +1,13 @@
 # -*- coding: UTF-8 -*-
 
 import operator
-from horizon_contrib.api.base import ClientBase
 from urllib import urlencode
+from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
+from horizon import exceptions
+from horizon_contrib.api.base import ClientBase
+
+from .pagination import PaginationClient
 
 
 class SearchOptionsMixin(object):
@@ -18,15 +23,21 @@ class SearchOptionsMixin(object):
         '''returns query string from search options'''
         return urlencode(search_opts)
 
-    def get_url(self, id=None, search_opts={}):
+    def get_url(self, id=None, search_opts={}, url='/{scope}/'):
         query = self.get_query_string(search_opts)
+        attrs = {
+            'scope': self.scope
+        }
         if not id:
-            base_url = '/%s/' % self.scope
+            base_url = url.format(**attrs)
         else:
-            base_url = '/{0}/{1}/'.format(self.scope, id)
+            attrs['id'] = id
+            id_url = url + '{id}/'
+            base_url = id_url.format(**attrs)
         if query:
             return '?'.join([base_url,
-                            query])
+                             query])
+
         return base_url
 
 
@@ -109,3 +120,21 @@ class Manager(ClientBase, SearchOptionsMixin):
 
     def filter(self, *args, **kwargs):
         raise NotImplementedError
+
+    def process_exception(self, exception, request, response):
+        '''handle exceptions during standard API calls'''
+        if settings.DEBUG:
+            # developers info
+            try:
+                errors = response.json()
+            except:
+                exceptions.handle(request, str(exception))
+            else:
+                exceptions.handle(request, str(errors))
+        # user friendly info
+        exceptions.handle(request, _('Unable to load %s') % self.scope.title())
+
+
+class PaginatedManager(PaginationClient, Manager):
+
+    pass

@@ -158,6 +158,66 @@ and then `views.py`
         table_class = PaginatedModelTable
 
 
+PaginatedApiTable
+-----------------
+
+Table which implements standard Django Rest Framework pagination style.
+
+You can declare manager if you use ``PaginatedManager`` class from ``horizon_contrib.api`` or just implement ``get_page_data`` method.
+
+.. code-block:: python
+
+    from horizon_contrib.tables import PaginatedApiTable
+
+    class MyApiTable(PaginatedApiTable):
+
+        manager = api.helpdesk.tickets
+
+    def get_page_data(self, page=1):
+        """returns data for specific page
+        """
+        self._paginator = self.manager.list(
+            self.request,
+            search_opts={'page': page})
+        return self._paginator
+
+and then `views.py`
+
+.. code-block:: python
+
+    from horizon_contrib.tables.views import PaginatedView
+
+    from .tables import PaginatedApiTable
+
+    class IndexView(PaginatedView):
+        table_class = PaginatedApiTable
+
+If you want loading data in view override ``get_data`` method.
+
+.. code-block:: python
+
+    from horizon_contrib.tables.views import PaginatedView
+
+    from .tables import PaginatedApiTable
+
+    class IndexView(PaginatedView):
+        table_class = PaginatedApiTable
+
+        def get_data(self):
+            objects = []
+            table = self.get_table()
+            page = self.request.GET.get('page', 1)
+
+            if table:
+                try:
+                    objects = helpdesk.tickets.closed(
+                        self.request, search_opts={'page': page})
+                except Exception as e:
+                    raise e
+                else:
+                    table._paginator = objects
+            return objects
+
 LinkedListColumn
 ----------------
 

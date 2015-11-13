@@ -3,10 +3,11 @@
 import logging
 from math import ceil
 
+from horizon import exceptions
 from django.utils import six
 from django.conf import settings
 from .base import ClientBase
-from .pagination import ListResponse
+from .response import ListResponse
 
 LOG = logging.getLogger("client.base")
 
@@ -48,3 +49,19 @@ class PaginationClient(ClientBase):
     '''Use pagination list reponse'''
 
     list_response_class = PaginatedListResponse
+
+    def process_data(self, data, request):
+        '''optionaly extract results from response'''
+
+        # check if data are paginated
+        if 'results' in data:
+            response = self.list_response_class(data)
+        else:
+            response = data
+
+        if 'errors' in data:
+            if settings.DEBUG:
+                raise Exception(data['errors'])
+            exceptions.handle(request, ', '.join(data['errors']))
+
+        return response

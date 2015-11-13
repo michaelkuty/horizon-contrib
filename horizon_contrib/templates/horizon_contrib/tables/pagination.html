@@ -1,5 +1,6 @@
-{% load mathfilters %}
+{% load mathfilters i18n %}
 
+{% if not table.paginator.page_range|length == 1 %}
 <ul class="pagination pagination-sm">
 
   {% if table.has_previous %}
@@ -13,7 +14,7 @@
         <li><a href="#" class="disabled">...</a></li>
       {% endif %}
       {% if forloop.counter < 5 or forloop.revcounter <= 2 %}
-        {% if num == table.get_page %}
+        {% if num|slugify == table.get_page|slugify %}
           <li class="active"><a href="#" style="text-decoration:underline;">{{ num }}</a></li>
         {% else %}
         <li><a href="?page={{ num }}">{{ num }}</a></li>
@@ -23,9 +24,9 @@
 
   {% if table.show_all_url %}&nbsp;&nbsp;
     {% if not table.get_page %}
-    <li class="active"><a href="?page=all" style="text-decoration:underline;" class="showall">Zobrazit vše</a></li>
+    <li class="active"><a href="?page=all" style="text-decoration:underline;" class="showall">{% trans 'Show All' %}</a></li>
     {% else %}
-    <li><a href="?page=all" style="text-decoration:underline;" class="showall">Zobrazit vše</a></li>
+    <li><a href="?page=all" style="text-decoration:underline;" class="showall">{% trans 'Show All' %}</a></li>
     {% endif %}
   {% endif %}
 
@@ -36,3 +37,4 @@
   {% endif %}
   
 </ul>
+{% endif %}
