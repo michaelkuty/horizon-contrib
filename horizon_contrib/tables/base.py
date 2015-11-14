@@ -7,7 +7,7 @@ from django.core.paginator import EmptyPage, Paginator
 from django.forms.models import fields_for_model
 from collections import OrderedDict
 from django.utils.translation import ugettext_lazy as _
-from horizon import tables
+from horizon import tables, exceptions
 from horizon.tables import Column
 from horizon.tables.base import DataTableMetaclass, DataTableOptions
 from horizon_contrib.api.models import DictModel
@@ -125,7 +125,7 @@ class ModelTableMetaclass(DataTableMetaclass):
         actions = list(set(opts.row_actions) | set(opts.table_actions))
         actions.sort(key=attrgetter('name'))
         actions_dict = OrderedDict([(action.name, action())
-                                   for action in actions])
+                                    for action in actions])
         attrs['base_actions'] = actions_dict
         if opts._filter_action:
             # Replace our filter action with the instantiated version
@@ -373,31 +373,80 @@ class PaginationMixin(object):
         return False
 
     def __init__(self, *args, **kwargs):
+
+        self._meta.template = \
+            "horizon_contrib/tables/_paginated_data_table.html"
+
         super(PaginationMixin, self).__init__(*args, **kwargs)
 
+        self.PAGINATION_COUNT = getattr(
+            settings, "PAGINATION_COUNT", self.PAGINATION_COUNT)
 
-class PaginatedTable(ModelTable, PaginationMixin):
+
+class PaginatedTable(PaginationMixin, ModelTable):
 
     """Paginated datatable with simple implementation which uses django Paginator
 
     note(majklk): this table uses custom table template
     """
-
-    def __init__(self, *args, **kwargs):
-
-        self._meta.template = \
-            "horizon_contrib/tables/_paginated_data_table.html"
-
-        super(PaginatedTable, self).__init__(*args, **kwargs)
-
-        self.PAGINATION_COUNT = getattr(
-            settings, "PAGINATION_COUNT", self.PAGINATION_COUNT)
+    pass
 
 
 class PaginatedModelTable(PaginatedTable):
 
     """named paginated table
     """
+
+
+class ApiPaginatationMixin(PaginationMixin):
+
+    show_all_url = False
+
+    def get_page_data(self, page="1"):
+        """returns data for specific page
+        """
+
+        try:
+            self._paginator = self.manager.list(
+                self.request,
+                search_opts={'page': page})
+        except Exception as e:
+            self._paginator = []
+            if settings.DEBUG:
+                raise e
+            exceptions.handle(self.request,
+                              _('Unable to load %s' % self._meta.verbose_name))
+
+        return self._paginator
+
+    @property
+    def get_page(self):
+        """returns int page"""
+        return self.request.GET.get('page', "1")
+
+    def previous_page_number(self):
+        if self.has_previous:
+            return int(self.get_page) - 1
+        return None
+
+    def next_page_number(self):
+        if self.has_next:
+            return int(self.get_page) + 1
+        return None
+
+    def has_previous(self):
+        return self._paginator.previous
+
+    def has_next(self):
+        return self._paginator.next
+
+
+class PaginatedApiTable(ApiPaginatationMixin, ModelTable):
+    '''simple api pagination table
+
+    set manager attribute like manager = api.hosts
+    '''
+    pass
 
 
 class ReactTable(ModelTable):

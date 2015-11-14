@@ -3,7 +3,7 @@ from horizon_contrib.tables.actions import (CreateAction, DeleteAction,
                                             FilterAction, UpdateAction,
                                             UpdateColumnAction)
 from horizon_contrib.tables.base import (ModelTable, PaginatedModelTable,
-                                         PaginatedTable, ReactTable)
+                                         PaginatedTable, ReactTable, PaginatedApiTable)
 from horizon_contrib.tables.views import IndexView, PaginatedView
 
 from horizon_contrib.tables.columns import LinkedListColumn

@@ -1,6 +1,4 @@
 
-
-
 import json
 import logging
 
@@ -8,7 +6,7 @@ import requests
 from requests import exceptions
 from django.conf import settings
 from horizon import messages
-from horizon_contrib.utils import to_dotdict
+from .response import ListResponse, DictResponse
 
 LOG = logging.getLogger("client.base")
 
@@ -24,6 +22,9 @@ class ClientBase(object):
     but provide consitent request method
 
     """
+
+    list_response_class = ListResponse
+    dict_response_class = DictResponse
 
     def do_request(self, path, method="GET", params={}, headers={}):
         '''make raw request'''
@@ -63,7 +64,7 @@ class ClientBase(object):
                 messages.error(request, msg)
                 if settings.DEBUG:
                     LOG.exception(msg)
-            return to_dotdict(result)
+            return result
         else:
             if response.status_code == 401:
                 raise exceptions.HTTPError('Unautorized 401')
@@ -76,7 +77,13 @@ class ClientBase(object):
 
     def process_data(self, result, request):
         '''process result and returns data'''
-        return result
+
+        if isinstance(result, list):
+            response = self.list_response_class(result)
+        elif isinstance(result, dict):
+            response = self.dict_response_class(result)
+
+        return response
 
     def process_headers(self, headers, request):
         '''process headers for example add auth headers'''
@@ -93,6 +100,10 @@ class ClientBase(object):
     def process_url(self, url, request):
         '''process url'''
         return url
+
+    def process_exception(self, exception, request, response):
+        '''process exception'''
+        raise exception
 
     def request(self, path, method="GET", params={}, request={}, headers={}):
         """main method which provide
@@ -123,19 +134,22 @@ class ClientBase(object):
 
         LOG.debug("%s - %s%s - %s" % (method, self.api, path, params))
 
-        # do request
-        response = self.do_request(
-            self.process_url('%s%s' % (self.api, path), _request),
-            self.process_method(method, _request),
-            self.process_params(params, _request),
-            self.process_headers(headers, _request))
+        try:
+            # do request
+            response = self.do_request(
+                self.process_url('%s%s' % (self.api, path), _request),
+                self.process_method(method, _request),
+                self.process_params(params, _request),
+                self.process_headers(headers, _request))
 
-        # process response
-        result = self.process_response(response, _request)
-        # process data
-        data = self.process_data(result, _request)
-
-        return data
+            # process response
+            result = self.process_response(response, _request)
+            # process data
+            data = self.process_data(result, _request)
+        except Exception as e:
+            self.process_exception(e, _request, response)
+        else:
+            return data
 
     def set_api(self):
         self.api = '%s://%s:%s%s' % (
