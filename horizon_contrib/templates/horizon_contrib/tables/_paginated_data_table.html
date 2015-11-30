@@ -25,7 +25,8 @@
 {% block table_footer %}
   {% if table.footer %}
   <tfoot>
-    {% if table.pagination and table.position == "both" or table.position == "bottom" %}
+    {% if table.pagination and table.has_other_pages %}
+      {% if table.position == "both" or table.position == "bottom" %}
       <tr>
         <td colspan="{{ table.get_columns|length }}">
           <span style="float:right!important;margin-top:9px;" class="table_count">{% blocktrans count counter=rows|length %}Displaying {{ counter }} item{% plural %}Displaying {{ counter }} items{% endblocktrans %}</span>
@@ -42,7 +43,8 @@
           {% endif %}
         {% endfor %}
       </tr>
-      {% endif %}  
+      {% endif %}
+      {% endif %}
     {% else %}
       {% if table.needs_summary_row %}
       <tr class="summation">

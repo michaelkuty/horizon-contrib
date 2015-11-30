@@ -366,6 +366,10 @@ class PaginationMixin(object):
             return True
         return False
 
+    @property
+    def has_other_pages(self):
+        return True if (self.has_previous or self.has_next) else False
+
     def has_more_data(self):
         """in default state is disabled, but can be used, but must be
         implemented some extra methods
