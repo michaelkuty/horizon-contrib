@@ -52,9 +52,11 @@ class SelfHandlingMixin(object):
                 if item in ["object_id", "id"]:
                     continue
                 try:
-                    self.helper[item].wrap(Div, css_class="col-lg-6 field-wrapper")
+                    self.helper[item].wrap(
+                        Div, css_class="col-lg-6 field-wrapper")
                 except Exception:
                     pass
+
 
 class SelfHandlingForm(SelfHandlingMixin, django_forms.Form):
 
@@ -69,7 +71,8 @@ class SelfHandlingModelForm(SelfHandlingMixin, django_forms.ModelForm):
     """form with implemented handle method
     """
 
-    def handle(self, request, data):
+    @property
+    def model_class(self):
         model = None
         try:
             model = self.Meta.model
@@ -77,8 +80,11 @@ class SelfHandlingModelForm(SelfHandlingMixin, django_forms.ModelForm):
             raise e
         if not model:
             raise Exception("Missing model")
+        return model
+
+    def handle(self, request, data):
         try:
-            saved_model = create_or_update_and_get(model, data)
+            saved_model = create_or_update_and_get(self.model_class, data)
             try:
                 messages.success(
                     request,
@@ -92,4 +98,4 @@ class SelfHandlingModelForm(SelfHandlingMixin, django_forms.ModelForm):
                 messages.error(request, e.message)
                 messages.error(request, data)
             return False
-        return True
+        return saved_model

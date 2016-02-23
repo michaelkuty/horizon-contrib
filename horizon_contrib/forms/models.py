@@ -15,12 +15,15 @@ https://docs.djangoproject.com/en/1.7/ref/models/querysets/#django.db.models.que
 def create_or_update_and_get(model_class, data):
 
     if StrictVersion(django.get_version()) > StrictVersion('1.7'):
-        # (majklk) TODO use native django update_or_create
         if model_class._meta.pk.name in data:
             model_pk_name = model_class._meta.pk.name
             obj, created = model_class.objects.update_or_create(
                 **{model_pk_name: data.pop(model_pk_name), 'defaults': data})
             return obj
+        # save without pk
+        model = model_class(**data)
+        model.save()
+        return model
     else:
         # note we assume data is already deserialized to a dict
         if model_class._meta.pk.name in data:

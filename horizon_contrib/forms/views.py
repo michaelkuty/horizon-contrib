@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
 from django.views import generic
 from horizon import exceptions
+from importlib import import_module
 from horizon_contrib.common import content_type as ct
 from django.forms.models import model_to_dict
 from horizon_contrib.forms.forms import SelfHandlingModelForm
@@ -92,7 +93,7 @@ class ModalFormView(ModalFormMixin, generic.FormView):
         returns the display name of the created object. Defaults to returning
         the ``name`` attribute.
         """
-        return obj.name
+        return getattr(obj, 'name', obj.__class__.__name__)
 
     def get_form(self, form_class):
         """Returns an instance of the form to be used in this view."""
@@ -106,11 +107,17 @@ class ModalFormView(ModalFormMixin, generic.FormView):
     def form_valid(self, form):
         try:
             handled = form.handle(self.request, form.cleaned_data)
-        except Exception:
+        except Exception as e:
+            raise e
             handled = None
             exceptions.handle(self.request)
 
         if handled:
+
+            if hasattr(form, 'handle_related_models'):
+                # handle related models
+                form.handle_related_models(self.request, handled)
+
             if ADD_TO_FIELD_HEADER in self.request.META:
                 field_id = self.request.META[ADD_TO_FIELD_HEADER]
                 data = [self.get_object_id(handled),
@@ -153,6 +160,11 @@ class ModelModalView(ModalFormView):
 
 class ModelFormMixin(object):
 
+    def _get_class_from_string(self, path):
+        mod = '.'.join(path.split('.')[0:-1])
+        cls_name = path.split('.')[-1]
+        return getattr(import_module(mod), cls_name)
+
     @cached_property
     def object(self):
 
@@ -167,10 +179,37 @@ class ModelFormMixin(object):
         # TODO if not content_type FW find in our registry
         return ct.get_class(self.kwargs["cls_name"])
 
+    def get_form_kwargs(self):
+        """
+        Returns the keyword arguments for instantiating the form.
+        """
+        kwargs = {
+            'initial': self.get_initial(),
+            'prefix': self.get_prefix(),
+            'request': self.request
+        }
+
+        if self.request.method in ('POST', 'PUT'):
+            kwargs.update({
+                'data': self.request.POST,
+                'files': self.request.FILES,
+            })
+        return kwargs
+
     def get_form_class(self):
         """
         Returns the form class to use in this view.
         """
+
+        if 'form_cls' in self.kwargs:
+            try:
+                form_class = self._get_class_from_string(
+                    self.kwargs['form_cls'])
+            except ImportError:
+                # use standard form instead of raising exception
+                pass
+            else:
+                return form_class
 
         if self.form_class:
             return self.form_class
@@ -224,6 +263,10 @@ class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
             except Exception as e:
                 raise e
             else:
+                if hasattr(form, 'handle_related_models'):
+                    # handle related models
+                    form.handle_related_models(self.request, instance)
+
                 try:
                     success_url = instance.get_absolute_url()
                 except Exception as e:
