@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+export PBR_VERSION=1.2.3
+
+%:
+	dh $@ --with python2
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -rf docs/build
+
+override_dh_auto_build:
+	dh_auto_build
+	sphinx-build -b man docs/source docs/build/man
+	sphinx-build -b html docs/source docs/build/html
