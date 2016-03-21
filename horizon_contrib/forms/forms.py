@@ -98,4 +98,10 @@ class SelfHandlingModelForm(SelfHandlingMixin, django_forms.ModelForm):
                 messages.error(request, e.message)
                 messages.error(request, data)
             return False
+
+        else:
+            if hasattr(self, 'handle_related_models'):
+                # handle related models
+                self.handle_related_models(self.request, saved_model)
+
         return saved_model

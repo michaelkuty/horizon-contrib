@@ -114,10 +114,6 @@ class ModalFormView(ModalFormMixin, generic.FormView):
 
         if handled:
 
-            if hasattr(form, 'handle_related_models'):
-                # handle related models
-                form.handle_related_models(self.request, handled)
-
             if ADD_TO_FIELD_HEADER in self.request.META:
                 field_id = self.request.META[ADD_TO_FIELD_HEADER]
                 data = [self.get_object_id(handled),
@@ -251,10 +247,7 @@ class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
         # handle is priotiry
         if hasattr(form, 'handle'):
 
-            try:
-                handled = super(CreateView, self).form_valid(form)
-            except Exception as e:
-                raise e
+            handled = super(CreateView, self).form_valid(form)
 
         elif hasattr(form, 'save'):
 
