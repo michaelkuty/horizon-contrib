@@ -60,23 +60,35 @@ def _is_contenttypes_enabled():
     return False
 
 
-def get_class(name):
-    """this method return model class from CT or our registry
-    all generic features depends on this method
-    """
-    cls = None
-    # if CT enabled search in
-    if _is_contenttypes_enabled():
-        try:
-            cls = get_class_from_ct(name)
-        except exceptions.ImproperlyConfigured:
-            LOG.warning("""
+class Registry(object):
+
+    _classes = {}
+
+    def get_class(self, name):
+        """this method return model class from CT or our registry
+        all generic features depends on this method
+        """
+
+        if name not in self._classes:
+
+            # if CT enabled search in
+            if _is_contenttypes_enabled():
+                try:
+                    self._classes[name] = get_class_from_ct(name)
+                except exceptions.ImproperlyConfigured:
+                    LOG.warning("""
 If you want fix this log message set ``WITHOUT_CT`` in you settings.py\
 you have enabled CT fw but DATABASES = {} is ImproperlyConfigured
-                """)
-            # try to find in our registry
-            cls = get_model(name)
-    else:
-        # in our registry
-        cls = get_model(name)
-    return cls
+                        """)
+                    # try to find in our registry
+                    self._classes[name] = get_model(name)
+            else:
+                # in our registry
+                self._classes[name] = get_model(name)
+
+        return self._classes[name]
+
+registry = Registry()
+
+# just a proxy
+get_class = registry.get_class

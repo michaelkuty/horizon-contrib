@@ -151,10 +151,12 @@ class ModalFormView(ModalFormMixin, generic.FormView):
 
     def _get_moda_size(self):
         '''try get form_size attribute form form or widget'''
-        form_class = self.get_form_class()
-        return getattr(form_class,
-                       'form_size',
-                       getattr(self.model, 'form_size', 'md'))
+        if hasattr(self, 'model'):
+            form_class = self.get_form_class()
+            return getattr(form_class,
+                           'form_size',
+                           getattr(self.model, 'form_size', 'md'))
+        return 'md'
 
 
 class ModelModalView(ModalFormView):
