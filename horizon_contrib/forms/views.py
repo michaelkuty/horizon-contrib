@@ -145,8 +145,16 @@ class ModalFormView(ModalFormMixin, generic.FormView):
 
         # add extra context for template
         context['url'] = self.request.build_absolute_uri()
+        context['modal_size'] = self._get_moda_size()
 
         return context
+
+    def _get_moda_size(self):
+        '''try get form_size attribute form form or widget'''
+        form_class = self.get_form_class()
+        return getattr(form_class,
+                       'form_size',
+                       getattr(self.model, 'form_size', 'md'))
 
 
 class ModelModalView(ModalFormView):
