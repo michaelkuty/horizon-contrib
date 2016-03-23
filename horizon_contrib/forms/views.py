@@ -205,7 +205,8 @@ class ModelFormMixin(object):
                 # use standard form instead of raising exception
                 pass
             else:
-                return form_class
+                return model_forms.modelform_factory(self.model, exclude=[],
+                                                     form=form_class)
 
         if self.form_class:
             return self.form_class
