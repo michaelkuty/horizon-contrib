@@ -5,6 +5,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from horizon import forms, messages
 from horizon_contrib.forms.models import create_or_update_and_get
+from django.utils.encoding import smart_unicode
 
 try:
     from crispy_forms.helper import FormHelper
@@ -148,7 +149,7 @@ class SelfHandlingModelForm(SelfHandlingMixin, django_forms.ModelForm):
             try:
                 messages.success(
                     request,
-                    _("Model %s was successfuly saved." % saved_model))
+                    _(smart_unicode("Model %s was successfuly saved." % saved_model)))
             except Exception as e:
                 raise e
                 # swallowed Exception
