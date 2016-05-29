@@ -21,11 +21,15 @@ def get_class_from_ct(name):
 
     parse = name.split('.')
 
-    if len(parse) > 1:
-        return ContentType.objects.get(
-            app_label=parse[0], model__iexact=parse[1]).model_class()
-    else:
-        return ContentType.objects.get(model__iexact=parse[0]).model_class()
+    try:
+        if len(parse) > 1:
+            return ContentType.objects.get(
+                app_label=parse[0], model__iexact=parse[1]).model_class()
+        else:
+            return ContentType.objects.get(
+                model__iexact=parse[0]).model_class()
+    except ContentType.DoesNotExist:
+        raise Exception('Missing model {} in {} app'.format(*parse))
 
     return None
 
