@@ -404,16 +404,25 @@ class PaginatedModelTable(PaginatedTable):
 
 class ApiPaginatationMixin(PaginationMixin):
 
-    show_all_url = False
-
     def get_page_data(self, page="1"):
         """returns data for specific page
         """
 
+        if page:
+            self.page = page
+
         try:
+
+            search_opts = {'page': page}
+
+            # http://www.django-rest-framework.org/api-guide/pagination/#drf-extensions
+            if self.page == "all":
+                search_opts = {'page_size': 'max'}
+
             self._paginator = self.manager.list(
                 self.request,
-                search_opts={'page': page})
+                search_opts=search_opts)
+
         except Exception as e:
             self._paginator = []
             if settings.DEBUG:
