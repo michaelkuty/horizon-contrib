@@ -26,31 +26,35 @@ class ClientBase(object):
     list_response_class = ListResponse
     dict_response_class = DictResponse
 
-    def do_request(self, path, method="GET", params={}, headers={}):
+    def do_request(self, path, method="GET", params={}, headers={},
+                   **kw):
         '''make raw request'''
 
         if not method == 'GET' and path[-1] != '/':
             path = path + '/'
 
         if method == "GET":
-            response = requests.get(path, headers=headers)
+            response = requests.get(path, headers=headers, **kw)
         elif method == "POST":
             headers["Content-Type"] = "application/json"
             response = requests.post(
                 path,
                 data=json.dumps(params),
-                headers=headers)
+                headers=headers,
+                **kw)
         elif method == "PUT":
             headers["Content-Type"] = "application/json"
             response = requests.put(
                 path,
                 data=json.dumps(params),
-                headers=headers)
+                headers=headers,
+                **kw)
         elif method == "DELETE":
             response = requests.delete(
                 path,
                 data=json.dumps(params),
-                headers=headers)
+                headers=headers,
+                **kw)
         return response
 
     def process_response(self, response, request):
