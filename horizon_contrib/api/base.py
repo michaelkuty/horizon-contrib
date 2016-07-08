@@ -1,12 +1,13 @@
 
 import json
 import logging
-
 import requests
+
+from horizon import messages
 from requests import exceptions
 from django.conf import settings
-from horizon import messages
-from .response import ListResponse, DictResponse
+
+from .response import DictResponse, ListResponse
 
 LOG = logging.getLogger("client.base")
 
@@ -33,35 +34,28 @@ class ClientBase(object):
         if not method == 'GET' and path[-1] != '/':
             path = path + '/'
 
-        if method == "GET":
-            response = requests.get(path, headers=headers, **kw)
-        elif method == "POST":
-            headers["Content-Type"] = "application/json"
-            response = requests.post(
-                path,
-                data=json.dumps(params),
-                headers=headers,
-                **kw)
-        elif method == "PUT":
-            headers["Content-Type"] = "application/json"
-            response = requests.put(
-                path,
-                data=json.dumps(params),
-                headers=headers,
-                **kw)
-        elif method == "DELETE":
-            response = requests.delete(
-                path,
-                data=json.dumps(params),
-                headers=headers,
-                **kw)
-        return response
+        # for legacy clients which expect this
+        if method in ("POST", "PUT"):
+            headers.update({"Content-Type": "application/json"})
+
+        return requests.request(url=path,
+                                method=method,
+                                data=json.dumps(params) if params else None,
+                                headers=headers,
+                                **kw)
 
     def process_response(self, response, request):
         '''process response and handle statues and exceptions'''
 
         if response.status_code <= 204:
-            result = response.json()
+
+            try:
+                result = response.json()
+            except ValueError:
+                # handle JSONDecodeError
+                # handle empty response
+                result = {}
+
             if "error" in result:
                 msg = result.get("error")
                 # populate exception
