@@ -35,8 +35,8 @@ def join_list(value):
 
 def status_icon(value):
     if value is True:
-        return SafeString('<i class=\"icon-large fa fa-ok\"></i>')
-    return SafeString('<i class=\"icon-large fa fa-remove"></i>')
+        return SafeString('<i class=\"icon-large fa fa-check\"></i>')
+    return SafeString('<i class=\"icon-large fa fa-times"></i>')
 
 
 def filter_m2m(datum):
