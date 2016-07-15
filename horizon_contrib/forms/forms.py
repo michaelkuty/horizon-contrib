@@ -9,7 +9,7 @@ from django.utils.encoding import smart_text
 
 try:
     from crispy_forms.helper import FormHelper
-    from crispy_forms.layout import Div, Layout
+    from crispy_forms.layout import Div, Layout, HTML
     from crispy_forms.bootstrap import Tab, TabHolder
     CRISPY = True
 except Exception as e:
@@ -40,6 +40,8 @@ class SelfHandlingMixin(object):
             }
         }
 
+        help_text = "Select user and role."
+
     """
     required_css_class = 'required'
 
@@ -51,21 +53,28 @@ class SelfHandlingMixin(object):
         super(SelfHandlingMixin, self).__init__(*args, **kwargs)
 
         # crispy layout
-        if CRISPY:
+        if CRISPY and not hasattr(self, 'helper'):
             self.helper = FormHelper(self)
             self.helper.field_class = ""
             self.helper.form_tag = False
             self.helper.label_class = "control-label"
 
-            # classes added only if not hidden
-            for item in self.helper.layout.fields:
-                if item in ["object_id", "id"]:
-                    continue
-                try:
-                    self.helper[item].wrap(
-                        Div, css_class="col-lg-6 field-wrapper")
-                except Exception:
-                    pass
+            if hasattr(self, 'help_text'):
+                # for helptext make two columns
+                self.helper[0:len(self.helper.layout.fields)].wrap_together(
+                    Div, css_class="col-lg-6 field-wrapper")
+                self.helper.layout.append(
+                    HTML("<div class='col-lg-6 help-text'>%s</div>" % self.help_text))
+            else:
+                # classes added only if not hidden
+                for item in self.helper.layout.fields:
+                    if item in ["object_id", "id"]:
+                        continue
+                    try:
+                        self.helper[item].wrap(
+                            Div, css_class="col-lg-6 field-wrapper")
+                    except Exception:
+                        pass
 
     def init_layout(self):
         '''Call init for generic layout'''

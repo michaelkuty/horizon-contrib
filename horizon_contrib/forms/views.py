@@ -14,10 +14,16 @@ from horizon_contrib.common import content_type as ct
 from django.forms.models import model_to_dict
 from horizon_contrib.forms.forms import SelfHandlingModelForm
 
+try:
+    from horizon.views import PageTitleMixin
+    BaseClass = PageTitleMixin
+except ImportError:
+    BaseClass = object
+
 ADD_TO_FIELD_HEADER = "HTTP_X_HORIZON_ADD_TO_FIELD"
 
 
-class ModalFormMixin(object):
+class ModalFormMixin(BaseClass):
 
     def get_template_names(self):
         if self.request.is_ajax():
@@ -61,8 +67,8 @@ class ContextMixin(object):
         return b"%s" % self.get_label()
 
     def get_help_text(self):
-        return getattr(self, 'help_text', _('Empty space is so boring please\
-                                            provide `help_text on this view`'))
+        return getattr(self, 'help_text', _('Empty space is so boring please '
+                                            'provide `help_text on this view`'))
 
 
 class ModalFormView(ModalFormMixin, generic.FormView):
