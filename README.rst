@@ -71,9 +71,10 @@ Installation
 
 .. code-block:: bash
 
+    pip install testrepository
     pip install horizon-contrib
 
-    pip install git+https://github.com/michaelkuty/horizon-contrib.git@develop
+    pip install git+https://github.com/michaelkuty/horizon-contrib.git#egg=horizon-contrib
 
 Now as you wish install horizon, if you don't know about this, use this command::
 
