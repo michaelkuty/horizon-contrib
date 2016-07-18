@@ -9,5 +9,5 @@ except ImportError:
     pass
 
 setuptools.setup(
-    setup_requires=['pbr', 'testrepository'],
+    setup_requires=['testrepository', 'pbr'],
     pbr=True)
