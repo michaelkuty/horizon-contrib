@@ -4,7 +4,6 @@ from django import forms as django_forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from horizon import forms, messages
-from horizon_contrib.forms.models import create_or_update_and_get
 from django.utils.encoding import smart_text
 
 try:
@@ -141,37 +140,16 @@ class SelfHandlingModelForm(SelfHandlingMixin, django_forms.ModelForm):
     """form with implemented handle method
     """
 
-    @property
-    def model_class(self):
-        model = None
-        try:
-            model = self.Meta.model
-        except Exception as e:
-            raise e
-        if not model:
-            raise Exception("Missing model")
-        return model
-
     def handle(self, request, data):
-        try:
-            saved_model = create_or_update_and_get(self.model_class, data)
-            try:
-                messages.success(
-                    request,
-                    _(smart_text("Model %s was successfuly saved." % saved_model)))
-            except Exception as e:
-                raise e
-                # swallowed Exception
-                # model has not __unicode__ method
-        except Exception as e:
-            if getattr(settings, "DEBUG", False):
-                messages.error(request, e.message)
-                messages.error(request, data)
-            return False
 
-        else:
-            if hasattr(self, 'handle_related_models'):
-                # handle related models
-                self.handle_related_models(self.request, saved_model)
+        instance = self.save()
 
-        return saved_model
+        messages.success(
+            request,
+            _(smart_text("Model %s was successfuly saved." % instance)))
+
+        if hasattr(self, 'handle_related_models'):
+            # handle related models
+            self.handle_related_models(self.request, instance)
+
+        return instance

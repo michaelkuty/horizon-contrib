@@ -188,8 +188,12 @@ class ModelFormMixin(object):
 
     @cached_property
     def model(self):
-        # TODO if not content_type FW find in our registry
-        return ct.get_class(self.kwargs["cls_name"])
+
+        if "cls_name" in self.kwargs:
+            # TODO if not content_type FW find in our registry
+            return ct.get_class(self.kwargs["cls_name"])
+
+        return self.get_form_class()._meta.model
 
     def get_form_kwargs(self):
         """
@@ -314,7 +318,12 @@ class UpdateView(CreateView):
 
     name = _('Update')
 
-    def get_initial(self):
-        if isinstance(self.object, dict):
-            return self.object
-        return model_to_dict(self.object)
+    def get_form_kwargs(self):
+        """
+        Returns the keyword arguments for instantiating the form.
+        """
+        kwargs = super(UpdateView, self).get_form_kwargs()
+
+        kwargs['instance'] = self.object
+
+        return kwargs
