@@ -18,6 +18,7 @@ from .actions import UpdateColumnAction
 
 
 class AjaxUpdateRow(tables.Row):
+
     """ row with implemented get_data for generic ajax update
     """
 
@@ -61,6 +62,9 @@ class ModelTableOptions(DataTableOptions):
         self.ajax_update = getattr(options, "ajax_update", False)
         self.update_action = getattr(
             options, "update_action", UpdateColumnAction)
+        self.no_data_message = getattr(options,
+                                       "no_data_message",
+                                       _("No items to display."))
 
 
 class ModelTableMetaclass(DataTableMetaclass):
@@ -455,6 +459,7 @@ class ApiPaginatationMixin(PaginationMixin):
 
 
 class PaginatedApiTable(ApiPaginatationMixin, ModelTable):
+
     '''simple api pagination table
 
     set manager attribute like manager = api.hosts
