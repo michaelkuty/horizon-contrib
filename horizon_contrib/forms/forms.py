@@ -63,7 +63,7 @@ class SelfHandlingMixin(object):
                 self.helper[0:len(self.helper.layout.fields)].wrap_together(
                     Div, css_class="col-lg-6 field-wrapper")
                 self.helper.layout.append(
-                    HTML("<div class='col-lg-6 help-text'>%s</div>" % self.help_text))
+                    HTML(smart_text("<div class='col-lg-6 help-text'>%s</div>" % self.help_text)))
             else:
                 # classes added only if not hidden
                 for item in self.helper.layout.fields:
