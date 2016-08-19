@@ -69,7 +69,7 @@ class ClientBase(object):
             if response.status_code == 400:
                 raise exceptions.HTTPError('Bad Request 400')
             if response.status_code == 500:
-                LOG.exception(request.body)
+                LOG.exception(request.text)
                 raise exceptions.HTTPError('Unexpected exception 500')
             return Exception(response.status_code)
 
