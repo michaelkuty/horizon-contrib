@@ -11,7 +11,6 @@ from django.views import generic
 from horizon import exceptions
 from importlib import import_module
 from horizon_contrib.common import content_type as ct
-from django.forms.models import model_to_dict
 from horizon_contrib.forms.forms import SelfHandlingModelForm
 
 try:
@@ -44,6 +43,12 @@ class ModalFormMixin(BaseClass):
         if ADD_TO_FIELD_HEADER in self.request.META:
             context['add_to_field'] = self.request.META[ADD_TO_FIELD_HEADER]
         return context
+
+    def get_success_url(self):
+        if self.request.META.get("HTTP_REFERER") != \
+                self.request.build_absolute_uri():
+            return self.request.META.get('HTTP_REFERER')
+        return super(ModalFormMixin, self).get_success_url()
 
 
 class ContextMixin(object):
@@ -130,11 +135,7 @@ class ModalFormView(ModalFormMixin, generic.FormView):
                 return handled
             else:
                 success_url = self.get_success_url()
-                if self.request.META.get("HTTP_REFERER") != self.request.build_absolute_uri():
-                    response = http.HttpResponseRedirect(
-                        self.request.META.get('HTTP_REFERER', success_url))
-                else:
-                    response = http.HttpResponseRedirect(success_url)
+                response = http.HttpResponseRedirect(success_url)
                 # TODO(gabriel): This is not a long-term solution to how
                 # AJAX should be handled, but it's an expedient solution
                 # until the blueprint for AJAX handling is architected
@@ -253,12 +254,6 @@ class CreateView(ModelFormMixin, ModalFormView, ContextMixin):
     def get_form(self, form_class):
         """Returns an instance of the form to be used in this view."""
         return self.get_form_class()(**self.get_form_kwargs())
-
-    def get_success_url(self):
-        if self.request.META.get("HTTP_REFERER") != \
-                self.request.build_absolute_uri():
-            return self.request.META.get('HTTP_REFERER')
-        return super(CreateView, self).get_success_url()
 
     def form_valid(self, form):
 
