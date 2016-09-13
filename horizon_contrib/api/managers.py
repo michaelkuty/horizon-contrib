@@ -128,11 +128,15 @@ class Manager(ClientBase, SearchOptionsMixin):
             try:
                 errors = response.json()
             except:
-                exceptions.handle(request, str(exception))
+                if not isinstance(request, dict):
+                    exceptions.handle(request, str(exception))
             else:
-                exceptions.handle(request, str(errors))
+                if not isinstance(request, dict):
+                    exceptions.handle(request, str(errors))
         # user friendly info
-        exceptions.handle(request, _('Unable to load %s') % self.scope.title())
+        if not isinstance(request, dict):
+            exceptions.handle(
+                request, _('Unable to load %s') % self.scope.title())
 
 
 class PaginatedManager(PaginationClient, Manager):
