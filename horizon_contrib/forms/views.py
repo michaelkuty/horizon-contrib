@@ -2,8 +2,10 @@
 
 import json
 import os
+import sys
 
 from django import http
+from django.utils import six
 from django.forms import models as model_forms
 from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
@@ -116,12 +118,12 @@ class ModalFormView(ModalFormMixin, generic.FormView):
         return form_class(**kwargs)
 
     def form_valid(self, form):
+
         try:
             handled = form.handle(self.request, form.cleaned_data)
-        except Exception as e:
-            raise e
-            handled = None
-            exceptions.handle(self.request)
+        except:
+            exc_info = sys.exc_info()
+            raise six.reraise(*exc_info)
 
         if handled:
 
