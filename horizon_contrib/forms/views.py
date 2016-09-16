@@ -5,15 +5,17 @@ import os
 import sys
 
 from django import http
-from django.utils import six
 from django.forms import models as model_forms
-from django.utils.translation import ugettext_lazy as _
+from django.utils import six
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
 from django.views import generic
 from horizon import exceptions
-from importlib import import_module
 from horizon_contrib.common import content_type as ct
+from horizon_contrib.compat import method_decorator
 from horizon_contrib.forms.forms import SelfHandlingModelForm
+from django.shortcuts import get_object_or_404
+from importlib import import_module
 
 try:
     from horizon.views import PageTitleMixin
@@ -93,6 +95,18 @@ class ModalFormView(ModalFormMixin, generic.FormView):
     /en/dev/ref/class-based-views/generic-editing/#formview>`_ class for
     more details.
     """
+
+    decorators = []
+
+    def __new__(cls, *args, **kwargs):
+
+        instance = super(ModalFormView, cls).__new__(cls, *args, **kwargs)
+
+        for decorator in cls.decorators:
+
+            method_decorator(instance, decorator, name='dispatch')
+
+        return instance
 
     def get_object_id(self, obj):
         """For dynamic insertion of resources created in modals, this method
@@ -182,12 +196,7 @@ class ModelFormMixin(object):
 
     @cached_property
     def object(self):
-
-        try:
-            obj = self.model.objects.get(id=self.kwargs["id"])
-        except Exception as e:
-            raise e
-        return obj
+        return get_object_or_404(self.model, id=self.kwargs["id"])
 
     @cached_property
     def model(self):
