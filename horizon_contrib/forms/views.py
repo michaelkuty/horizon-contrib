@@ -104,7 +104,7 @@ class ModalFormView(ModalFormMixin, generic.FormView):
 
         for decorator in cls.decorators:
 
-            method_decorator(decorator, name='dispatch')(instance)
+            method_decorator(decorator, name='dispatch')(cls)
 
         return instance
 
