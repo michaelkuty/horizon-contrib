@@ -10,7 +10,6 @@ from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views import generic
-from horizon import exceptions
 from horizon_contrib.common import content_type as ct
 from horizon_contrib.compat import method_decorator
 from horizon_contrib.forms.forms import SelfHandlingModelForm
@@ -96,6 +95,14 @@ class ModalFormView(ModalFormMixin, generic.FormView):
     more details.
     """
 
+    modal_id = None
+    modal_header = ""
+    form_id = None
+    submit_url = None
+    submit_label = _("Submit")
+    cancel_label = _("Cancel")
+    cancel_url = None
+
     decorators = []
 
     def __new__(cls, *args, **kwargs):
@@ -165,12 +172,19 @@ class ModalFormView(ModalFormMixin, generic.FormView):
 
     def get_context_data(self, **kwargs):
         context = super(ModalFormView, self).get_context_data(**kwargs)
-
-        # add extra context for template
         context['url'] = self.request.build_absolute_uri()
         context['modal_size'] = self._get_moda_size()
-
+        context['modal_id'] = self.modal_id
+        context['modal_header'] = self.modal_header
+        context['form_id'] = self.form_id
+        context['submit_url'] = self.submit_url or context['url']
+        context['submit_label'] = self.submit_label
+        context['cancel_label'] = self.cancel_label
+        context['cancel_url'] = self.get_cancel_url()
         return context
+
+    def get_cancel_url(self):
+        return self.cancel_url or self.success_url
 
     def _get_moda_size(self):
         '''try get form_size attribute form form or widget'''
