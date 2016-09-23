@@ -76,6 +76,8 @@ class ClientBase(object):
     def process_data(self, result, request):
         '''process result and returns data'''
 
+        response = result
+
         if isinstance(result, list):
             response = self.list_response_class(result)
         elif isinstance(result, dict):
