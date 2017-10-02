@@ -41,13 +41,14 @@ class LinkedListColumn(tables.Column):
     def get_raw_data(self, datum):
         self.datum = datum
         # collect all links
-        if isinstance(self.get_datum(datum), list):
+        data = self.get_datum(datum)
+        if hasattr(data, '__iter__'):
             links = []
-            for item in self.get_datum(datum):
+            for item in data:
                 links.append(self.render_link(item))
             return format_html(', '.join(links))
         # return single link
-        return self.render_link(datum)
+        return self.render_link(data)
 
     def render_link(self, datum):
         '''render link to html
@@ -90,11 +91,13 @@ class LinkedListColumn(tables.Column):
         '''
         if self.label:
             return self._get_nested(datum, self.label)
-        return self.table.get_object_display(datum)
+        return str(datum)
 
     def _get_nested(self, datum, key):
         '''small helper which supports nested dictionaries'''
         parts = key.split('.')
         if len(parts) == 2:
-            return datum[parts[0]][parts[1]]
-        return datum[key] if isinstance(datum, dict) else datum
+            if isinstance(datum, dict):
+                return datum[parts[0]][parts[1]]
+            return getattr(getattr(datum, parts[0]), parts[1])
+        return datum[key] if isinstance(datum, dict) else getattr(datum, key)
